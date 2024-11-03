@@ -1,5 +1,7 @@
 {
     "cSpell.words": [
-        "miao"
-    ]
+        "miao",
+        "prefs"
+    ],
+    "cmake.ignoreCMakeListsMissing": true
 }

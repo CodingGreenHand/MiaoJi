@@ -18,9 +18,9 @@ class LocalDictionary implements Dictionary {
 
   @override get name => _name;
 
-  Future<void> init() async {  
+  Future<void> _init() async {  
     try {  
-      String textFileString = await load(); 
+      String textFileString = await _load(); 
       //logger.d('Dictionary file loaded');  
       var temporaryWordList = textFileString.split(RegExp(r'\s+')); // 使用 RegExp 确保正确分割  
       //logger.d('Dictionary file parsed');
@@ -49,11 +49,11 @@ class LocalDictionary implements Dictionary {
   static Future<LocalDictionary> getInstance() async {  
     if (_singleton != null) return _singleton!;  
     _singleton = LocalDictionary._();  
-    await _singleton!.init();  
+    await _singleton!._init();  
     return _singleton!;  
   }  
   
-  Future<String> load() async {  
+  Future<String> _load() async {  
     try {  
       //logger.d('Loading dictionary file...');  
       return await rootBundle.loadString('assets/basic_word_dictionary.txt');  

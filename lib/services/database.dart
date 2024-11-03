@@ -3,6 +3,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'dart:io';
 
+abstract class TableNames{
+  static const String memorizingData = 'memorizing_data';
+  static const String wordBookPrefix = 'word_book_';
+}
+
 class DBProvider{
   DBProvider._();
 
@@ -14,16 +19,17 @@ class DBProvider{
     if(_database != null){
       return _database!;
     }
-    _database = await initDB();
+    _database = await _initDB();
     return _database!;
   }
 
-  static initDB() async{
+  //TODO: change the path to the correct one
+  static _initDB() async{
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    String path = join(documentsDirectory.path, 'hello_world.db');
-    //String path = 'hello_world.db';
+    //Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    //String path = join(documentsDirectory.path, 'hello_world.db');
+    String path = 'hello_world.db';
     return await openDatabase(path, version: 1, onOpen: (db){});
   }
 
