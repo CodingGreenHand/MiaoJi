@@ -1,5 +1,6 @@
 import 'package:miao_ji/services/database.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:miao_ji/utils/date_time_formalizer.dart';
 
 class MemorizingData {
   MemorizingData._();
@@ -17,15 +18,18 @@ class MemorizingData {
   }
 
   static Future<MemorizingData> getInstance() async {
-    await _instance.init();
+    if (database == null) await _instance.init();
     return _instance;
   }
   
   Future<void> update(String word,int score)async {
     List<Map<String, dynamic>> result = await database!.query(TableNames.memorizingData, where: 'word = ?', whereArgs: [word]);
     if(result.isEmpty){
-      await database!.insert(TableNames.memorizingData, {'word': word,'score': score});
+      await database!.insert(TableNames.memorizingData, {'word': word,'score': score,'last_memorizing_time':DateTimeFormalizer.truncateToDate(DateTime.now()).toIso8601String()});
     }else{
+      if(result.first['score'] < score){
+        await database!.update(TableNames.memorizingData,{'last_memorizing_time':DateTimeFormalizer.truncateToDate(DateTime.now()).toIso8601String()},where: 'word = ?', whereArgs: [word]);
+      }
       await database!.update(TableNames.memorizingData, {'score': score}, where: 'word = ?', whereArgs: [word]);
     }
   }
@@ -37,6 +41,14 @@ class MemorizingData {
       score = 0; 
     }
     await update(word,score);
+  }
+
+  Future<void> updateLastMemorizingTimeToNow(String word) async{
+    await database!.update(TableNames.memorizingData,{'last_memorizing_time':DateTimeFormalizer.truncateToDate(DateTime.now()).toIso8601String()},where: 'word = ?', whereArgs: [word]);
+  }
+
+  Future<void> updateLastMemorizingTime(String word,DateTime dateTime) async{
+    await database!.update(TableNames.memorizingData,{'last_memorizing_time':dateTime.toIso8601String()},where: 'word = ?', whereArgs: [word]);
   }
 
   Future<void> clear() async{

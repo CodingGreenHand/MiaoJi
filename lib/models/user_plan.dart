@@ -6,6 +6,7 @@ abstract class MemorizingOrder{
   static const String random = 'random';
   static const String sequential ='sequential';
   static const String reverse ='reverse';
+  static const List<String> orders = [random, sequential, reverse];
 }
 
 abstract class MemorizingMethodName{
@@ -25,15 +26,27 @@ class UserPlan {
 
   static int _dailyLearnNum = 10;
   static int _dailyReviewNum = 10;
-  static String _memorizingOrder = 'random';
+  static String _memorizingOrder = MemorizingOrder.random;
   static List<String> _usingMethods = [MemorizingMethodName.wordRecognitionCheck];
   static final UserPlan _singleton = UserPlan._();
 
   static Future<UserPlan> getInstance() async{
     _dailyLearnNum = await _prefs.getInt('dailyLearnNum')?? 10;
     _dailyReviewNum = await _prefs.getInt('dailyReviewNum')?? 10;
-    _memorizingOrder = await _prefs.getString('memorizingOrder')?? 'random';
+    _memorizingOrder = await _prefs.getString('memorizingOrder')?? MemorizingOrder.random;
     _usingMethods = await _prefs.getStringList('usingMethods')?? [MemorizingMethodName.wordRecognitionCheck];
+    if(_dailyLearnNum < 1) _dailyLearnNum = 1;
+    if(_dailyReviewNum < 1) _dailyReviewNum = 1;
+    if(!MemorizingOrder.orders.contains(_memorizingOrder)) _memorizingOrder = MemorizingOrder.random;
+    List<String> toRemove = [];
+    for (String method in _usingMethods) {
+      if (!MemorizingMethodName.methods.contains(method)) {
+        toRemove.add(method);
+      }
+    }
+    for (String method in toRemove) {
+      _usingMethods.remove(method);
+    }
     return _singleton;
   }
 
@@ -51,6 +64,7 @@ class UserPlan {
 
   int get dailyReviewNum => _dailyReviewNum;
   Future<void> setMemorizingOrder(String value) async{
+    if(!MemorizingOrder.orders.contains(value)) return;
     _memorizingOrder = value;
     await _prefs.setString('memorizingOrder', value);
   }
@@ -72,6 +86,7 @@ class UserPlan {
 
   Future<void> cancelMemorizingMethod(String value) async{
     if(!_usingMethods.contains(value)) return;
+    if(_usingMethods.length == 1) return;
     _usingMethods.remove(value);
     await _prefs.setStringList('usingMethods', _usingMethods);
   }
@@ -81,4 +96,8 @@ class UserPlan {
     int index = Random().nextInt(_usingMethods.length);
     return _usingMethods[index];
   }
+
+  bool isMethodAvailable(String value) => _usingMethods.contains(value);
+  
+  int methodNum() => _usingMethods.length;
 }

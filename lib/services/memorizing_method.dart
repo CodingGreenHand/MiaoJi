@@ -56,3 +56,10 @@ class WordRecognitionCheck extends MemorizingMethod {
     }
   }
 }
+
+class ChineseToEnglishSpelling extends MemorizingMethod {
+  @override
+  Future<void> checkInput(String input) async{
+    // TODO: implement checkInput
+  }
+}

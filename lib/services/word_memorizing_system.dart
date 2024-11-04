@@ -18,7 +18,7 @@ class WordMemorizingSystem {
 
   Future<void> initialize() async {
     memorizingData = await MemorizingData.getInstance();
-    String currentWordBookName = await _prefs.getString('currentWordBookName')?? 'default';
+    String currentWordBookName = await _prefs.getString('currentWordBookName')?? WordBookManager.defaultWordBookName;
     currentWordBook = WordBook(currentWordBookName);
     await currentWordBook!.initialize();
     userPlan = await UserPlan.getInstance();

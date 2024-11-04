@@ -8,7 +8,8 @@ class HomePage extends StatelessWidget{
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:const Text('Miao Ji')
+        title:const Text('妙记 Miao Ji'),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body:const MemorizingWordComponent(),
       floatingActionButton: Builder(builder: (BuildContext context){
@@ -49,7 +50,9 @@ class _DefaultMemorizingWordComponentState extends State<MemorizingWordComponent
   @override
   Widget build(BuildContext context) {
     return const Center(
-      child: Text('You have finished today\'s word memorizing. Congratulations!')
+      child: Text('''
+恭喜！您已完成今日学习！
+You have finished today\'s word memorizing. Congratulations!''')
     );
   }
 }

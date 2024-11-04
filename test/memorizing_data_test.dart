@@ -27,7 +27,6 @@ void main() {
       String testWord = 'testWord';  
       int initialScore = await md.queryScore(testWord);  
       expect(initialScore, equals(0));  
-  
       await md.update(testWord, 10);  
       int updatedScore = await md.queryScore(testWord);  
       expect(updatedScore, equals(10));  
@@ -57,8 +56,14 @@ void main() {
       await md.update(word2, 2);  
   
       List<Map<String, dynamic>> allData = await md.queryAll();  
+      await md.update(word1, 2);
+      allData = await md.queryAll();
+      //String dataTimeString = allData[0]['last_memorizing_time'];
+      //print(dataTimeString);
+      //DateTime dataTime = DateTime.parse(dataTimeString);
+      //print(dataTime);
       expect(allData.length, greaterThanOrEqualTo(2));  
-      expect(allData.any((map) => map['word'] == word1 && map['score'] == 1), isTrue);  
+      expect(allData.any((map) => map['word'] == word1 && map['score'] == 2), isTrue);  
       expect(allData.any((map) => map['word'] == word2 && map['score'] == 2), isTrue);  
     });  
   });  
