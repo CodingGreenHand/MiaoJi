@@ -39,7 +39,7 @@ class UserProcess {
     UserPlan userPlan = await UserPlan.getInstance();
     int neededNewWordCount = (userPlan.dailyLearnNum - todayLearnCount)>0? (userPlan.dailyLearnNum - todayLearnCount) : 0;
     int neededReviewCount = (userPlan.dailyReviewNum - todayReviewCount)>0? (userPlan.dailyReviewNum - todayReviewCount) : 0;
-    List<Map<String, dynamic>> queryResult = await database!.rawQuery('''SELECT wb.word FROM ${TableNames.wordBookPrefix + wordBookName} AS wb
+    List<Map<String, dynamic>> newWordQueryResult = await database!.rawQuery('''SELECT wb.word FROM ${TableNames.wordBookPrefix + wordBookName} AS wb
     WHERE NOT EXISTS(
       SELECT 1
       FROM ${TableNames.memorizingData} AS md
@@ -47,10 +47,10 @@ class UserProcess {
     )
     LIMIT $neededNewWordCount
     ''');
-    for(Map<String, dynamic> row in queryResult){
+    for(Map<String, dynamic> row in newWordQueryResult){
       wordsToLearn.add(row['word']);
     }
-    queryResult = await database!.rawQuery('''SELECT md.word FROM ${TableNames.memorizingData} AS md
+    List<Map<String, dynamic>> learnedWordQueryResult = await database!.rawQuery('''SELECT md.word,md.score,md.last_memorizing_time FROM ${TableNames.memorizingData} AS md
     WHERE EXISTS(
       SELECT 1
       FROM ${TableNames.wordBookPrefix + wordBookName} AS wb
@@ -58,7 +58,7 @@ class UserProcess {
     )
     LIMIT $neededReviewCount
     ''');
-    for(Map<String, dynamic> row in queryResult){
+    for(Map<String, dynamic> row in learnedWordQueryResult){
       if(_needsToReview(row)) wordsToReview.add(row['word']);
     }
   }

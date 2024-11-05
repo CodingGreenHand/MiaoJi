@@ -124,9 +124,14 @@ class WordBookComponentState extends State<WordBookComponent> {
                         ),
                         SimpleDialogOption(
                           child: const Text('查看'),
-                          onPressed: (){
+                          onPressed: () async {
                             Navigator.of(context).pop();
                             //TODO: 跳转到单词本内容页
+                            WordBook wordBook = await widget.wordBookManager.getWordBook(WordBookManager.wordBooks![index]);
+                            if(!context.mounted) return;
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (context) => WordBookContentPage(wordBook: wordBook),)
+                            );
                           },
                         )
                       ]
