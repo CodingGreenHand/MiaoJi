@@ -75,8 +75,8 @@ class UserProcess {
     return word;
   }
 
-  void updateTodayLearnCount(){
-    todayLearnCount++;
+  void updateTodayLearnCount(bool hasMemorized){
+    if(hasMemorized) todayLearnCount++;
     wordsToLearn.removeFirst();
     prefs!.setInt('todayLearnCount', todayLearnCount);
   }
@@ -85,6 +85,10 @@ class UserProcess {
     if(hasMemorized) todayReviewCount++;
     wordsToReview.removeFirst();
     prefs!.setInt('todayReviewCount', todayReviewCount);
+  }
+
+  void appendWordToLearn(String word){
+    wordsToLearn.add(word);
   }
 
   void appendWordToReview(String word){

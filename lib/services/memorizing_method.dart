@@ -14,20 +14,18 @@ class NewWordLearning extends MemorizingMethod {
   static const String ambiguous = 'ambiguous';
 
   String word;
-  MemorizingData? memorizingData;
   NewWordLearning(this.word);
 
   @override
   Future<void> checkInput(String input) async{
-    memorizingData ??= await MemorizingData.getInstance();
     if(input == recognized){
-      memorizingData!.updateBy(word, increment);
+      WordMemorizingSystem().memorizingData.updateBy(word, increment);
+      WordMemorizingSystem().currentWordBook!.userProcess!.updateTodayLearnCount(true);
     }
     else{
-      memorizingData!.updateBy(word, penalty);
-      WordMemorizingSystem().currentWordBook!.userProcess!.appendWordToReview(word);
+      WordMemorizingSystem().currentWordBook!.userProcess!.appendWordToLearn(word);
+      WordMemorizingSystem().currentWordBook!.userProcess!.updateTodayLearnCount(false);
     }
-    WordMemorizingSystem().currentWordBook!.userProcess!.updateTodayLearnCount();
   }  
 }
 
@@ -37,19 +35,17 @@ class WordRecognitionCheck extends MemorizingMethod {
   static const String ambiguous = 'ambiguous';
 
   String word;
-  MemorizingData? memorizingData;
   WordRecognitionCheck(this.word);
 
   @override
   Future<void> checkInput(String input) async{
-    memorizingData ??= await MemorizingData.getInstance();
     if(input == recognized){
-      memorizingData!.updateBy(word, increment);
+      WordMemorizingSystem().memorizingData.updateBy(word, increment);
       WordMemorizingSystem().currentWordBook!.userProcess!.updateTodayReviewCount(true);
     }
     else{
       if(input == notRecognized){
-        memorizingData!.updateBy(word, penalty);
+        WordMemorizingSystem().memorizingData.updateBy(word, penalty);
       }
       WordMemorizingSystem().currentWordBook!.userProcess!.appendWordToReview(word);
       WordMemorizingSystem().currentWordBook!.userProcess!.updateTodayReviewCount(false);
@@ -58,6 +54,27 @@ class WordRecognitionCheck extends MemorizingMethod {
 }
 
 class ChineseToEnglishSpelling extends MemorizingMethod {
+  @override
+  Future<void> checkInput(String input) async{
+    // TODO: implement checkInput
+  }
+}
+
+class ChineseToEnglishSelection extends MemorizingMethod {
+  @override
+  Future<void> checkInput(String input) async{
+    // TODO: implement checkInput
+  }
+}
+
+class EnglishToChineseSelection extends MemorizingMethod {
+  @override
+  Future<void> checkInput(String input) async{
+    // TODO: implement checkInput
+  }
+}
+
+class SentenceGapFilling extends MemorizingMethod {
   @override
   Future<void> checkInput(String input) async{
     // TODO: implement checkInput

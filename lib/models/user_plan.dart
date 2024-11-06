@@ -10,13 +10,13 @@ abstract class MemorizingOrder{
 }
 
 abstract class MemorizingMethodName{
-  static const String englishToChineseSection = 'EnglishToChineseSection';
-  static const String chineseToEnglishSection = 'ChineseToEnglishSection';
+  static const String englishToChineseSelection = 'EnglishToChineseSelection';
+  static const String chineseToEnglishSelection = 'ChineseToEnglishSelection';
   static const String chineseToEnglishSpelling = 'ChineseToEnglishSpelling';
   static const String sentenceGapFilling = 'SentenceGapFilling';
   static const String wordRecognitionCheck = 'WordRecognitionCheck';
   static const String newWordLearning = 'NewWordLearning';
-  static const List<String> methods = [englishToChineseSection, chineseToEnglishSection, chineseToEnglishSpelling, sentenceGapFilling, wordRecognitionCheck];
+  static const List<String> methods = [englishToChineseSelection, chineseToEnglishSelection, chineseToEnglishSpelling, sentenceGapFilling, wordRecognitionCheck];
 }
 
 class UserPlan {

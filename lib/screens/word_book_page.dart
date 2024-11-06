@@ -57,13 +57,16 @@ class WordBookComponentState extends State<WordBookComponent> {
                 return SimpleDialog(
                   title: const Text('添加单词本'),
                   children: [
-                    TextField(
-                      decoration: const InputDecoration(labelText: '单词本名称'),
-                      onSubmitted: (value) async {
-                        Navigator.pop(context);
-                        await widget.wordBookManager.createWordBook(value);
-                        setState((){});
-                      }
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child:TextField(
+                        decoration: const InputDecoration(labelText: '单词本名称'),
+                        onSubmitted: (value) async {
+                          Navigator.pop(context);
+                          await widget.wordBookManager.createWordBook(value);
+                          setState((){});
+                        }
+                      ),
                     )
                   ]
                 );

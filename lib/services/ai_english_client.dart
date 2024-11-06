@@ -2,14 +2,16 @@ import 'package:openai_dart/openai_dart.dart';
 
 
 class AIEnglishClient {
+  static const String errorMessage = 'Failed to generate';
+  static List<String> words = [];
   static final AIEnglishClient _instance = AIEnglishClient._();
   AIEnglishClient._();
-  static getInstance() => _instance;
-  final client = OpenAIClient(
+  static AIEnglishClient getInstance() => _instance;
+  static final client = OpenAIClient(
     baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     apiKey: '220fe9c3-1aa6-4a19-ab30-6b31c149b666'
   );
-  Future<String> generate(String prompt,[temperature = 0.5]) async{
+  static Future<String> generate(String prompt,[temperature = 0.5]) async{
     try{
       final response = await client.createChatCompletion(
         request:CreateChatCompletionRequest(
@@ -24,14 +26,26 @@ class AIEnglishClient {
           temperature: temperature,
         )
       );
-      return Future.value(response.choices.first.message.content ?? 'Failed to generate');
+      return Future.value(response.choices.first.message.content ?? errorMessage);
     }
     catch(e){
-      return 'Failed to generate';
+      return errorMessage;
     }
   }
 
-  Future<String> generateSentence(String word) async{
+  static Future<String> explainWord(String word) async{
+    String requirement = 
+      'Explain the meaning of the given word: $word .'
+      'Just output the content, don\'t say anything else.';
+    try{
+      return await generate(requirement);
+    }
+    catch(e){
+      return errorMessage;
+    }
+  }
+
+  static Future<String> generateSentence(String word) async{
     String requirement = 
       'Generate a English sentence using the given word: $word .'
       'Just output the content, don\'t say anything else.';
@@ -39,20 +53,44 @@ class AIEnglishClient {
       return await generate(requirement);
     }
     catch(e){
-      return 'Failed to generate';
+      return errorMessage;
     }
   }
 
-  Future<String> generatePassage(String prompt,[int wordNum = 100]) async {
+  static Future<String> generatePassage(String prompt,[int wordNum = 100]) async {
     String requirement = 
-      'Generate a English passage using words from the given prompt: $prompt .'
+      'Generate a English passage using words from the given prompt: $prompt .Every word from the prompt should be included in the passage.'
       'The passage should have about $wordNum words.'
       'Just output the content, don\'t say anything else.';
     try{
       return await generate(requirement);
     }
     catch(e){
-      return 'Failed to generate';
+      return errorMessage;
     }
+  }
+
+  static Future<String> generatePassageByWords(List<String> words,[int wordNum = 100]) async {
+    String wordPrompt = '';
+    for(int i = 0; i < words.length; i++){
+      wordPrompt += ' ${words[i]}';
+    }
+    return await generatePassage(wordPrompt, wordNum);
+  }
+
+  static Future<bool> areSynonyms(String word1, String word2) async {
+    String requirement = 'Are $word1 and $word2 synonyms? If yes, output "yes"; else output "no". Don\'t output anything else.';
+    String result = await generate(requirement);
+    if(result == errorMessage) throw Exception('Failed to judge synonyms');
+    return result.toLowerCase() == 'yes';
+  }
+
+  static void addWord(String word) {
+    if(words.contains(word)) return;
+    words.add(word);
+  }
+
+  static bool deleteWord(String word){
+    return words.remove(word);
   }
 }

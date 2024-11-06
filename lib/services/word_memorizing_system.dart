@@ -14,7 +14,7 @@ class WordMemorizingSystem {
   WordBook? currentWordBook;
   UserPlan? userPlan;
   String currentWord = '';
-  String currentMethod = MemorizingMethodName.englishToChineseSection;
+  String currentMethod = MemorizingMethodName.englishToChineseSelection;
 
   Future<void> initialize() async {
     memorizingData = await MemorizingData.getInstance();

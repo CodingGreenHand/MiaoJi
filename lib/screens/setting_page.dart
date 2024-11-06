@@ -60,6 +60,7 @@ class SettingPageComponentState extends State<SettingPageComponent> {
       padding: const EdgeInsets.all(16),
       children: [
         TextField(
+          keyboardType: TextInputType.number,
           decoration: InputDecoration(
               labelText:
                   '每日学习单词数目: ${widget.userPlan.dailyLearnNum.toString()}',
@@ -69,6 +70,7 @@ class SettingPageComponentState extends State<SettingPageComponent> {
             try {
               num = int.parse(value);
               if (num < 0) throw Exception('学到的东西不要还回去啊！');
+              if (num == 0) throw Exception('至少学一个吧......');
               if (num > 100000) throw Exception('一天学不了这么多吧......');
               widget.userPlan.setDailyLearnNum(num);
               ScaffoldMessenger.of(context)
@@ -84,6 +86,7 @@ class SettingPageComponentState extends State<SettingPageComponent> {
           },
         ),
         TextField(
+          keyboardType: TextInputType.number,
           decoration: InputDecoration(
               labelText:
                   '每日复习单词数目: ${widget.userPlan.dailyReviewNum.toString()}',
@@ -93,6 +96,7 @@ class SettingPageComponentState extends State<SettingPageComponent> {
             try {
               num = int.parse(value);
               if (num < 0) throw Exception('学到的东西不要还回去啊！');
+              if (num == 0) throw Exception('至少复习一个吧......');
               if (num > 100000) throw Exception('一天学不了这么多吧......');
               widget.userPlan.setDailyReviewNum(num);
               ScaffoldMessenger.of(context)
@@ -128,16 +132,16 @@ class SettingPageComponentState extends State<SettingPageComponent> {
         TitledCheckBox(
             '中文选词',
             widget.userPlan.isMethodAvailable(
-                MemorizingMethodName.chineseToEnglishSection), (bool? value) {
+                MemorizingMethodName.chineseToEnglishSelection), (bool? value) {
           return setMemorizingMethodState(
-              value, MemorizingMethodName.chineseToEnglishSection);
+              value, MemorizingMethodName.chineseToEnglishSelection);
         }),
         TitledCheckBox(
             '英文选词',
             widget.userPlan.isMethodAvailable(
-                MemorizingMethodName.englishToChineseSection), (bool? value) {
+                MemorizingMethodName.englishToChineseSelection), (bool? value) {
           return setMemorizingMethodState(
-              value, MemorizingMethodName.englishToChineseSection);
+              value, MemorizingMethodName.englishToChineseSelection);
         }),
         TitledCheckBox(
             '例句拼写',
