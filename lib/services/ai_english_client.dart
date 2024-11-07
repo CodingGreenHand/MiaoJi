@@ -26,7 +26,7 @@ class AIEnglishClient {
           temperature: temperature,
         )
       );
-      return Future.value(response.choices.first.message.content ?? errorMessage);
+      return await Future.value(response.choices.first.message.content ?? errorMessage);
     }
     catch(e){
       return errorMessage;

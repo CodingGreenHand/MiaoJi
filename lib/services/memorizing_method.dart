@@ -2,7 +2,7 @@ import 'package:miao_ji/services/ai_english_client.dart';
 import 'package:miao_ji/services/dictionary.dart';
 import 'package:miao_ji/services/word_memorizing_system.dart';
 import 'package:miao_ji/utils/list_utils.dart';
-import 'package:miao_ji/utils/string_parser.dart';
+import 'package:miao_ji/utils/string_utils.dart';
 import 'dart:math';
 
 const int increment = 20;
@@ -153,9 +153,13 @@ class EnglishToChineseSelection extends MemorizingMethod {
 }
 
 class SentenceGapFilling extends MemorizingMethod {
-  late int gapIndex;
-  List<String> _sentence = [];
+  int gapIndex = -1;
+  List<String> _sentenceElements = [];
+  String _sentence = '';
+  String _translation = '';
   SentenceGapFilling(super.word);
+
+  String get translation => _translation;
 
   Future<String> requestAI() async {
     /*final String requirement =
@@ -207,7 +211,7 @@ class SentenceGapFilling extends MemorizingMethod {
         In this sentence, elements are: "\\"" "Everyone","loves","dogs",".","\\"","He","said",",","\\"","I","love","dogs","too",".","\\""
         If index starts from 0, the first position of the word "dog" in the sentence is 3. Note that ",","\\"" and "." are considered as single elements.
         ''';*/
-    final String requirement ='''
+    String requirement ='''
       Please generate a sentence with the word "$word" in it. Don't change the form of the word (Uppercase is acceptable).
       Don't output anything else.
       Example:
@@ -234,12 +238,33 @@ class SentenceGapFilling extends MemorizingMethod {
   }
 
   Future<void> initialize() async {
-    final String aiResponse = await requestAI();
-    _sentence = StringParser.parseEnglishSentence(aiResponse);
-    gapIndex = _sentence.indexOf(word);
+    _sentence = await requestAI();
+    _sentenceElements = StringUtils.parseEnglishSentence(_sentence);
+    gapIndex = -1;
+    for (int i = 0; i < _sentenceElements.length; i++) {
+      if (_sentenceElements[i].toLowerCase() == word.toLowerCase()) {
+        gapIndex = i;
+        break;
+      }
+    }
     if (gapIndex == -1) {
       throw Exception('init failed: word not found in sentence');
     }
+    _translation = await getChineseTranslation();
+  }
+
+  String getSentenceWithGap(){
+    List<String> gapped = [..._sentenceElements];
+    gapped[gapIndex] = '____';
+    return StringUtils.joinToSentence(gapped);
+  }
+
+  Future<String> getChineseTranslation() async{
+    String requirement = '''
+    将下面的英语句子翻译成中文。只输出翻译，不要输出任何其他内容。
+    $_sentence
+    ''';
+    return await AIEnglishClient.generate(requirement);
   }
 
   @override

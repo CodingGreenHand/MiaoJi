@@ -15,6 +15,23 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
+
+  void _listener(){
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    HomePageChangeNotifier().addListener(_listener);
+  }
+
+  @override
+  void dispose() {
+    HomePageChangeNotifier().removeListener(_listener);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,7 +75,7 @@ class HomePageState extends State<HomePage> {
                 ));
               },
             ),
-            ListenableBuilder(
+            /*ListenableBuilder(
               listenable: HomePageChangeNotifier(), 
               builder: (BuildContext context,Widget? child){
                 return Column(children: [
@@ -69,7 +86,7 @@ class HomePageState extends State<HomePage> {
                       today's learn: ${WordMemorizingSystem().currentWordBook!.userProcess!.todayLearnCount}
                       today's review: ${WordMemorizingSystem().currentWordBook!.userProcess!.todayReviewCount}''') //TODO: 删除测试用代码
                 ],);
-              }),
+              }),*/
             Expanded(child:MemorizingWordComponent()),
           ],
         ),

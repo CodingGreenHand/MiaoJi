@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:miao_ji/models/user_plan.dart';
-import 'package:miao_ji/services/ai_english_client.dart';
 import 'package:miao_ji/services/word_memorizing_system.dart';
 import 'package:miao_ji/services/memorizing_method.dart';
 import 'package:miao_ji/screens/custom_widgets/custom_widgets.dart';
@@ -50,22 +49,34 @@ class MemorizingWordComponentState extends State<MemorizingWordComponent> {
             );
           }
           if (WordMemorizingSystem().currentMethod ==
-              MemorizingMethodName.chineseToEnglishSpelling){
-                return ChineseToEnglishSpellingPageComponent(
-                  chineseToEnglishSpelling:
+              MemorizingMethodName.chineseToEnglishSpelling) {
+            return ChineseToEnglishSpellingPageComponent(
+              chineseToEnglishSpelling:
                   ChineseToEnglishSpelling(WordMemorizingSystem().currentWord),
-                );
-              }
-          if(WordMemorizingSystem().currentMethod == MemorizingMethodName.chineseToEnglishSelection){
-
+            );
           }
-          if(WordMemorizingSystem().currentMethod == MemorizingMethodName.englishToChineseSelection){
-
+          if (WordMemorizingSystem().currentMethod ==
+              MemorizingMethodName.chineseToEnglishSelection) {
+            return ChineseToEnglishSelectionPageComponent(
+              chineseToEnglishSelection:
+                  ChineseToEnglishSelection(WordMemorizingSystem().currentWord),
+            );
           }
-          if(WordMemorizingSystem().currentMethod == MemorizingMethodName.sentenceGapFilling){
-
+          if (WordMemorizingSystem().currentMethod ==
+              MemorizingMethodName.englishToChineseSelection) {
+            return EnglishToChineseSelectionPageComponent(
+              englishToChineseSelection:
+                  EnglishToChineseSelection(WordMemorizingSystem().currentWord),
+            );
           }
-          return DefaultMemorizingPageComponent();
+          if (WordMemorizingSystem().currentMethod ==
+              MemorizingMethodName.sentenceGapFilling) {
+            return SentenceGapFillingPageComponent(
+              sentenceGapFilling:
+                  SentenceGapFilling(WordMemorizingSystem().currentWord),
+            );
+          }
+          return const DefaultMemorizingPageComponent();
         });
   }
 }
@@ -75,15 +86,27 @@ class MemorizingWordFinishedPageComponent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text('''
+    return Center(
+        child:
+            Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+      const Text('''
 恭喜！您已完成今日学习！
-You have finished today's word memorizing. Congratulations!'''));
+You have finished today's word memorizing. Congratulations!'''),
+      ElevatedButton(
+          onPressed: () async {
+            await WordMemorizingSystem()
+                .currentWordBook!
+                .userProcess!
+                .startNewRound();
+            HomePageChangeNotifier().notify();
+          },
+          child: const Text('再来一轮学习'))
+    ]));
   }
 }
 
 class DefaultMemorizingPageComponent extends StatelessWidget {
-  DefaultMemorizingPageComponent({super.key});
-  final Listenable updateNotifier = WordMemorizingSystem();
+  const DefaultMemorizingPageComponent({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +206,7 @@ class NewWordLearningPageComponentState
         FutureBuilder(
           future: LocalDictionary.getInstance(),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
+            if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
               return Text(snapshot.data!.query(widget.newWordLearning.word));
             } else if (snapshot.hasError) {
               return const Text('');
@@ -271,12 +294,14 @@ class WordRecognitionCheckPageComponentState
         child: Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Text(widget.wordRecognitionCheck.word, style: const TextStyle(fontSize: 30)),
+        Text(widget.wordRecognitionCheck.word,
+            style: const TextStyle(fontSize: 30)),
         FutureBuilder(
           future: LocalDictionary.getInstance(),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return Text(snapshot.data!.query(widget.wordRecognitionCheck.word));
+            if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+              return Text(
+                  snapshot.data!.query(widget.wordRecognitionCheck.word));
             } else if (snapshot.hasError) {
               return const Text('');
             }
@@ -319,66 +344,421 @@ class ChineseToEnglishSpellingPageComponentState
   String judgeResult = 'synonyms';
 
   @override
-  Widget build(BuildContext context){
-      return Center(child: Column(
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           FutureBuilder(
-            future: LocalDictionary.getInstance(), 
-            builder: (context,snapshot){
-              if (snapshot.hasData) {
-                return Text(snapshot.data!.query(widget.chineseToEnglishSpelling.word), style: const TextStyle(fontSize: 30));
-              }
-              else if (snapshot.hasError) {
-                return const Text('Error');
-              }
-              return const Text('加载中文意思......');
-            }),
-          Padding(padding: const EdgeInsets.all(16.0),
-            child:TextField(
-              textAlign: TextAlign.center,
-              decoration: const InputDecoration(
-                hintText: '请输入对应的英文单词',
-              ),
-              onSubmitted:(value){
-                _input = value;
-                answered = true;
-                if(judgeResult == 'synonyms') setState(() {});
-              }
-            )),
-            Builder(builder: (BuildContext context){
-              if(answered){
+              future: LocalDictionary.getInstance(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+                  return Text(
+                      snapshot.data!
+                          .query(widget.chineseToEnglishSpelling.word),
+                      style: const TextStyle(fontSize: 30));
+                } else if (snapshot.hasError) {
+                  return const Text('Error');
+                }
+                return const Text('加载中文意思......');
+              }),
+          Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                  textAlign: TextAlign.center,
+                  decoration: const InputDecoration(
+                    hintText: '请输入对应的英文单词',
+                  ),
+                  onSubmitted: (value) {
+                    _input = value;
+                    answered = true;
+                    if (judgeResult == 'synonyms') setState(() {});
+                  })),
+          Builder(
+            builder: (BuildContext context) {
+              if (answered) {
                 return FutureBuilder(
-                  future:widget.chineseToEnglishSpelling.checkInput(_input!),
-                  builder:(context,snapshot){
-                    if(snapshot.hasData){
-                      judgeResult = snapshot.data!;
-                      if(judgeResult == 'synonyms'){
-                        return Text('是 $_input 的近义词,请尝试输入其它词汇');
+                    future: widget.chineseToEnglishSpelling.checkInput(_input!),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+                        judgeResult = snapshot.data!;
+                        if (judgeResult == 'synonyms') {
+                          return Text('是 $_input 的近义词,请尝试输入其它词汇');
+                        }
+
+                        return Column(
+                          children: [
+                            judgeResult == 'correct'
+                                ? const Text('恭喜你，回答正确！')
+                                : Text(
+                                    '回答错误，正确答案是 ${widget.chineseToEnglishSpelling.word}'),
+                            ElevatedButton(
+                                onPressed: () {
+                                  answered = false;
+                                  judgeResult = 'synonyms';
+                                  WordMemorizingSystem().memorizeNextWord();
+                                  HomePageChangeNotifier().notify();
+                                },
+                                child: const Text('继续学习'))
+                          ],
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text('${snapshot.error}');
                       }
-                      
-                        return Column(children: [
-                          judgeResult == 'correct' ? const Text('恭喜你，回答正确！') : Text('回答错误，正确答案是 ${widget.chineseToEnglishSpelling.word}'),
-                          ElevatedButton(
-                            onPressed: (){
-                              answered = false;
-                              judgeResult = 'synonyms';
-                              WordMemorizingSystem().memorizeNextWord();
-                              HomePageChangeNotifier().notify();
-                            }, 
-                            child: const Text('继续学习'))
-                        ],);
-                      
-                    }
-                    else if(snapshot.hasError){
-                      return Text('${snapshot.error}');
-                    }
-                    return const Text('正在判定......');
-                  }
-                );
+                      return const Text('正在判定......');
+                    });
               }
               return const Text('请输入对应英文单词');
-            },),
-      ],),);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 复习方法三：中文选词
+class ChineseToEnglishSelectionPageComponent extends StatefulWidget {
+  final ChineseToEnglishSelection chineseToEnglishSelection;
+
+  const ChineseToEnglishSelectionPageComponent(
+      {super.key, required this.chineseToEnglishSelection});
+
+  @override
+  State<ChineseToEnglishSelectionPageComponent> createState() {
+    return ChineseToEnglishSelectionPageComponentState();
+  }
+}
+
+class ChineseToEnglishSelectionPageComponentState
+    extends State<ChineseToEnglishSelectionPageComponent> {
+  bool answered = false;
+  String? _input;
+  List<String>? options;
+
+  void optionOnPressed() {
+    setState(() {
+      widget.chineseToEnglishSelection.checkInput(_input!);
+      answered = true;
+      if (_input == widget.chineseToEnglishSelection.word) {
+        answered = false;
+        WordMemorizingSystem().memorizeNextWord();
+        HomePageChangeNotifier().notify();
+      }
+    });
+  }
+
+  @override
+  Widget build(context) {
+    return FutureBuilder(
+        future: widget.chineseToEnglishSelection.getOptions(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+            options = snapshot.data!;
+            return Center(
+              child: Column(
+                children: [
+                  FutureBuilder(
+                    future: LocalDictionary.getInstance(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+                        return Text(
+                            snapshot.data!
+                                .query(widget.chineseToEnglishSelection.word),
+                            style: const TextStyle(fontSize: 30));
+                      } else if (snapshot.hasError) {
+                        return const Text('Error');
+                      }
+                      return const Text('加载中文意思......');
+                    },
+                  ),
+                  Expanded(child: Builder(builder: (context) {
+                    if (!answered) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ElevatedButton(
+                              onPressed: () {
+                                _input = options![0];
+                                optionOnPressed();
+                              },
+                              child: Text(options![0])),
+                          ElevatedButton(
+                              onPressed: () {
+                                _input = options![1];
+                                optionOnPressed();
+                              },
+                              child: Text(options![1])),
+                          ElevatedButton(
+                              onPressed: () {
+                                _input = options![2];
+                                optionOnPressed();
+                              },
+                              child: Text(options![2])),
+                          ElevatedButton(
+                              onPressed: () {
+                                _input = options![3];
+                                optionOnPressed();
+                              },
+                              child: Text(options![3])),
+                        ],
+                      );
+                    } else {
+                      return Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text(
+                                '回答错误，正确答案是 ${widget.chineseToEnglishSelection.word}'),
+                            ElevatedButton(
+                                onPressed: () {
+                                  answered = false;
+                                  WordMemorizingSystem().memorizeNextWord();
+                                  HomePageChangeNotifier().notify();
+                                },
+                                child: const Text('继续学习')),
+                          ]);
+                    }
+                  }))
+                ],
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Text('${snapshot.error}');
+          }
+          return const Text('正在获取选项......');
+        });
+  }
+}
+
+/// 复习方法四：英文选词
+class EnglishToChineseSelectionPageComponent extends StatefulWidget {
+  final EnglishToChineseSelection englishToChineseSelection;
+
+  const EnglishToChineseSelectionPageComponent(
+      {super.key, required this.englishToChineseSelection});
+
+  @override
+  State<EnglishToChineseSelectionPageComponent> createState() {
+    return EnglishToChineseSelectionPageComponentState();
+  }
+}
+
+class EnglishToChineseSelectionPageComponentState
+    extends State<EnglishToChineseSelectionPageComponent> {
+  bool answered = false;
+  String? _input;
+  List<String>? options;
+
+  void optionOnPressed() {
+    setState(() {
+      widget.englishToChineseSelection.checkInput(_input!);
+      answered = true;
+      if (_input == widget.englishToChineseSelection.word) {
+        answered = false;
+        WordMemorizingSystem().memorizeNextWord();
+        HomePageChangeNotifier().notify();
+      }
+    });
+  }
+
+  @override
+  Widget build(context) {
+    return FutureBuilder(
+        future: widget.englishToChineseSelection.getOptions(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+            options = snapshot.data!;
+            return Center(
+              child: Column(
+                children: [
+                  Text(widget.englishToChineseSelection.word,
+                      style: const TextStyle(fontSize: 30)),
+                  FutureBuilder(
+                    future: LocalDictionary.getInstance(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+                        return Expanded(child: Builder(builder: (context) {
+                          if (!answered) {
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                ElevatedButton(
+                                    onPressed: () {
+                                      _input = options![0];
+                                      optionOnPressed();
+                                    },
+                                    child: Text(
+                                        snapshot.data!.query(options![0]))),
+                                ElevatedButton(
+                                    onPressed: () {
+                                      _input = options![1];
+                                      optionOnPressed();
+                                    },
+                                    child: Text(
+                                        snapshot.data!.query(options![1]))),
+                                ElevatedButton(
+                                    onPressed: () {
+                                      _input = options![2];
+                                      optionOnPressed();
+                                    },
+                                    child: Text(
+                                        snapshot.data!.query(options![2]))),
+                                ElevatedButton(
+                                    onPressed: () {
+                                      _input = options![3];
+                                      optionOnPressed();
+                                    },
+                                    child: Text(
+                                        snapshot.data!.query(options![3]))),
+                              ],
+                            );
+                          } else {
+                            return Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Text(
+                                      '回答错误，正确答案是 ${snapshot.data!.query(widget.englishToChineseSelection.word)}'),
+                                  ElevatedButton(
+                                      onPressed: () {
+                                        answered = false;
+                                        WordMemorizingSystem()
+                                            .memorizeNextWord();
+                                        HomePageChangeNotifier().notify();
+                                      },
+                                      child: const Text('继续学习')),
+                                ]);
+                          }
+                        }));
+                      } else if (snapshot.hasError) {
+                        return Text('${snapshot.error}');
+                      }
+                      return const Text('加载选项中......');
+                    },
+                  ),
+                ],
+              ),
+            );
+          } else if (snapshot.hasError) {
+            return Text('${snapshot.error}');
+          }
+          return const Text('正在获取选项......');
+        });
+  }
+}
+
+/// 复习方法五：例句拼写
+class SentenceGapFillingPageComponent extends StatefulWidget {
+  final SentenceGapFilling sentenceGapFilling;
+
+  const SentenceGapFillingPageComponent(
+      {super.key, required this.sentenceGapFilling});
+
+  @override
+  State<SentenceGapFillingPageComponent> createState() {
+    return SentenceGapFillingPageComponentState();
+  }
+}
+
+class SentenceGapFillingPageComponentNotifier extends ChangeNotifier {
+  SentenceGapFillingPageComponentNotifier._();
+  static final SentenceGapFillingPageComponentNotifier _instance =
+      SentenceGapFillingPageComponentNotifier._();
+  factory SentenceGapFillingPageComponentNotifier() => _instance;
+  void notify() {
+    notifyListeners();
+  }
+}
+
+class SentenceGapFillingPageComponentState
+    extends State<SentenceGapFillingPageComponent> {
+  String? _input;
+  bool answered = false;
+  String judgeResult = 'synonyms';
+
+  ChangeNotifier notifier = ChangeNotifier();
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: widget.sentenceGapFilling.initialize(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(widget.sentenceGapFilling.getSentenceWithGap(),
+                      style: const TextStyle(fontSize: 30)),
+                  Text(widget.sentenceGapFilling.translation,
+                      style: const TextStyle(fontSize: 20)),
+                  Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: TextField(
+                        textAlign: TextAlign.center,
+                        decoration: const InputDecoration(
+                          hintText: '请输入句子空缺部分的单词',
+                        ),
+                        onSubmitted: (value) {
+                          answered = true;
+                          _input = value;
+                          if (judgeResult == 'synonyms') {
+                            SentenceGapFillingPageComponentNotifier().notify();
+                          }
+                        },
+                      )),
+                  ListenableBuilder(
+                    listenable: SentenceGapFillingPageComponentNotifier(),
+                    builder: (context, Widget? child) {
+                      if (answered) {
+                        return FutureBuilder(
+                          future: widget.sentenceGapFilling.checkInput(_input!),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.done) {
+                              judgeResult = snapshot.data!;
+                              if (judgeResult == 'synonyms') {
+                                return Text('是 $_input 的近义词,请尝试输入其它词汇');
+                              }
+                              return Column(
+                                children: [
+                                  judgeResult == 'correct'
+                                      ? const Text('恭喜你，回答正确！')
+                                      : Text(
+                                          '回答错误，正确答案是 ${widget.sentenceGapFilling.word}'),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      answered = false;
+                                      judgeResult = 'synonyms';
+                                      WordMemorizingSystem().memorizeNextWord();
+                                      HomePageChangeNotifier().notify();
+                                      setState(() {});
+                                    },
+                                    child: const Text('继续学习'),
+                                  )
+                                ],
+                              );
+                            } else if (snapshot.hasError) {
+                              return Text('${snapshot.error}');
+                            }
+                            return const Text('正在判定......');
+                          },
+                        );
+                      }
+                      return const Text('请输入句子空缺部分的单词');
+                    },
+                  )
+                ],
+              ),
+            );
+          } else if (snapshot.hasError) {
+            WordMemorizingSystem()
+                .changeMethod(MemorizingMethodName.wordRecognitionCheck);
+            HomePageChangeNotifier().notify();
+            return const Text('Error');
+          }
+          return const Center(
+            child: Text('加载中...'),
+          );
+        });
   }
 }

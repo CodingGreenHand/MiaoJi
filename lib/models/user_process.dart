@@ -1,4 +1,5 @@
 import 'package:miao_ji/services/database.dart';
+import 'package:miao_ji/services/word_memorizing_system.dart';
 import 'dart:collection';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -108,5 +109,12 @@ class UserProcess {
     await prefs!.setInt('todayLearnCount', todayLearnCount);
     await prefs!.setInt('todayReviewCount', todayReviewCount);
     await prefs!.setInt('lastMemorizingTime', DateTime.now().millisecondsSinceEpoch);
+  }
+
+  Future<void> startNewRound() async {
+    todayLearnCount = 0;
+    todayReviewCount = 0;
+    await updateLocalData();
+    await WordMemorizingSystem().initialize();
   }
 }

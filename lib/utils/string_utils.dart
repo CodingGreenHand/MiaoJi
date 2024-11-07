@@ -1,4 +1,4 @@
-class StringParser {
+class StringUtils {
   static List<String> parseEnglishSentence(String sentence){
     RegExp exp = RegExp(r'\b\w+\b|[^\w\s]');
     List<String?> words  = exp.allMatches(sentence).map((match) => match.group(0)).toList();

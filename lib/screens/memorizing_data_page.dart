@@ -18,7 +18,7 @@ class MemorizingDataPageState extends State<MemorizingDataPage> {
         body: FutureBuilder(
           future: MemorizingData.getInstance(),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
+            if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
               return MemorizingDataPageComponent(
                   memorizingData: snapshot.data!);
             } else if (snapshot.hasError) {
@@ -90,7 +90,7 @@ class MemorizingDataPageComponentState
         FutureBuilder(
             future: widget.memorizingData.queryAll(),
             builder: (context, snapshot) {
-              if (snapshot.hasData) {
+              if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
                 List<Map<String, dynamic>> data = snapshot.data!;
                 //print(data);
                 return Expanded(

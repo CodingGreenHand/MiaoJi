@@ -1,11 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:miao_ji/models/user_plan.dart';
-import 'package:miao_ji/services/dictionary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:miao_ji/models/memorizing_data.dart';
 import 'package:miao_ji/models/word_book.dart';
 
-class WordMemorizingSystem with ChangeNotifier{
+class WordMemorizingSystem {
   WordMemorizingSystem._();
   static final WordMemorizingSystem _singleton = WordMemorizingSystem._();
   factory WordMemorizingSystem() => _singleton;
@@ -15,7 +13,7 @@ class WordMemorizingSystem with ChangeNotifier{
   WordBook? currentWordBook;
   UserPlan? userPlan;
   String currentWord = '';
-  String currentMethod = MemorizingMethodName.englishToChineseSelection;
+  String currentMethod = MemorizingMethodName.wordRecognitionCheck;
 
 
   Future<void> initialize() async {
@@ -33,15 +31,12 @@ class WordMemorizingSystem with ChangeNotifier{
       currentWord = currentWordBook!.userProcess!.getNextWordToReview();
     } else {
       currentMethod = MemorizingMethodName.newWordLearning;
-      notifyListeners();
       return;
     }
     if(currentWord == '') {
-      notifyListeners();
       return;
     }
     currentMethod = userPlan!.getMethod();
-    notifyListeners();
   }
 
   void changeWordBook(String wordBookName) async {
@@ -49,6 +44,13 @@ class WordMemorizingSystem with ChangeNotifier{
     currentWordBook = WordBook(wordBookName);
     await currentWordBook!.initialize();
     memorizeNextWord();
+  }
+
+  void changeMethod(String method) {
+    if(!MemorizingMethodName.methods.contains(method)){
+      throw Exception('Invalid method');
+    }
+    currentMethod = method;
   }
 
   int get remainingNewWordsCount {
