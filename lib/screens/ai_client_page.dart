@@ -36,7 +36,7 @@ class AiClientPageState extends State<AiClientPage> {
                 }, 
                 child: const Text('使用以下单词生成文章')
               ),
-              const Spacer(),
+              const SizedBox(width: 16),
               Expanded(child: TextField(
                 decoration: InputDecoration(
                   labelText: '文章词数:$wordNum',

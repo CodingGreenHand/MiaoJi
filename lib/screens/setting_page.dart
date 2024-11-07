@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:miao_ji/models/user_plan.dart';
-import 'package:miao_ji/services/memorizing_method.dart';
 import 'package:miao_ji/screens/memorizing_data_page.dart';
 import 'package:miao_ji/services/word_memorizing_system.dart';
 import 'package:miao_ji/screens/word_book_page.dart';

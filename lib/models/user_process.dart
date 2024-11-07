@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:miao_ji/models/user_plan.dart';
+import 'dart:math';
 
 class UserProcess {
   int todayLearnCount = 0;
@@ -47,7 +48,11 @@ class UserProcess {
     )
     LIMIT $neededNewWordCount
     ''');
-    for(Map<String, dynamic> row in newWordQueryResult){
+    List<Map<String,dynamic>> mutableList = [...newWordQueryResult];
+    if (userPlan.memorizingOrder == MemorizingOrder.random){
+      mutableList.shuffle(Random(DateTime.now().millisecondsSinceEpoch));
+    }
+    for(Map<String, dynamic> row in mutableList){
       wordsToLearn.add(row['word']);
     }
     List<Map<String, dynamic>> learnedWordQueryResult = await database!.rawQuery('''SELECT md.word,md.score,md.last_memorizing_time FROM ${TableNames.memorizingData} AS md
@@ -58,7 +63,11 @@ class UserProcess {
     )
     LIMIT $neededReviewCount
     ''');
-    for(Map<String, dynamic> row in learnedWordQueryResult){
+    mutableList = [...learnedWordQueryResult];
+    if (userPlan.memorizingOrder == MemorizingOrder.random){
+      mutableList.shuffle(Random(DateTime.now().millisecondsSinceEpoch));
+    }
+    for(Map<String, dynamic> row in mutableList){
       if(_needsToReview(row)) wordsToReview.add(row['word']);
     }
   }
@@ -75,16 +84,16 @@ class UserProcess {
     return word;
   }
 
-  void updateTodayLearnCount(bool hasMemorized){
-    if(hasMemorized) todayLearnCount++;
+  void updateLearningProgress(bool answeredCorrectly){
+    if(answeredCorrectly) todayLearnCount++;
     wordsToLearn.removeFirst();
-    prefs!.setInt('todayLearnCount', todayLearnCount);
+    updateLocalData();
   }
 
-  void updateTodayReviewCount(bool hasMemorized){
-    if(hasMemorized) todayReviewCount++;
+  void updateReviewingProgress(bool answeredCorrectly){
+    if(answeredCorrectly) todayReviewCount++;
     wordsToReview.removeFirst();
-    prefs!.setInt('todayReviewCount', todayReviewCount);
+    updateLocalData();
   }
 
   void appendWordToLearn(String word){
@@ -98,6 +107,6 @@ class UserProcess {
   Future<void> updateLocalData() async{
     await prefs!.setInt('todayLearnCount', todayLearnCount);
     await prefs!.setInt('todayReviewCount', todayReviewCount);
-    await prefs!.setInt('lastMemorizingTime', lastMemorizingTime.millisecondsSinceEpoch);
+    await prefs!.setInt('lastMemorizingTime', DateTime.now().millisecondsSinceEpoch);
   }
 }

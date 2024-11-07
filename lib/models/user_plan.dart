@@ -1,3 +1,5 @@
+import 'package:miao_ji/services/dictionary.dart';
+import 'package:miao_ji/services/word_memorizing_system.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:core';
 import 'dart:math';
@@ -29,12 +31,14 @@ class UserPlan {
   static String _memorizingOrder = MemorizingOrder.random;
   static List<String> _usingMethods = [MemorizingMethodName.wordRecognitionCheck];
   static final UserPlan _singleton = UserPlan._();
+  static  LocalDictionary? _localDictionary;
 
   static Future<UserPlan> getInstance() async{
     _dailyLearnNum = await _prefs.getInt('dailyLearnNum')?? 10;
     _dailyReviewNum = await _prefs.getInt('dailyReviewNum')?? 10;
     _memorizingOrder = await _prefs.getString('memorizingOrder')?? MemorizingOrder.random;
     _usingMethods = await _prefs.getStringList('usingMethods')?? [MemorizingMethodName.wordRecognitionCheck];
+    _localDictionary ??= await LocalDictionary.getInstance();
     if(_dailyLearnNum < 1) _dailyLearnNum = 1;
     if(_dailyReviewNum < 1) _dailyReviewNum = 1;
     if(!MemorizingOrder.orders.contains(_memorizingOrder)) _memorizingOrder = MemorizingOrder.random;
@@ -88,13 +92,23 @@ class UserPlan {
     if(!_usingMethods.contains(value)) return;
     if(_usingMethods.length == 1) return;
     _usingMethods.remove(value);
+    if(WordMemorizingSystem().currentMethod == value){
+      WordMemorizingSystem().currentMethod = getMethod();
+    }
     await _prefs.setStringList('usingMethods', _usingMethods);
   }
 
   String getMethod(){
     if(_usingMethods.isEmpty) return MemorizingMethodName.wordRecognitionCheck;
-    int index = Random().nextInt(_usingMethods.length);
-    return _usingMethods[index];
+    List<String> validMethods = [..._usingMethods];
+    if(_localDictionary!.query(WordMemorizingSystem().currentWord) == ''){
+      if(validMethods.contains(MemorizingMethodName.chineseToEnglishSelection)) validMethods.remove(MemorizingMethodName.chineseToEnglishSelection);
+      if(validMethods.contains(MemorizingMethodName.chineseToEnglishSpelling)) validMethods.remove(MemorizingMethodName.chineseToEnglishSpelling);
+      if(validMethods.contains(MemorizingMethodName.englishToChineseSelection)) validMethods.remove(MemorizingMethodName.englishToChineseSelection);
+    }
+    if(validMethods.isEmpty) return MemorizingMethodName.wordRecognitionCheck;
+    int index = Random().nextInt(validMethods.length);
+    return validMethods[index];
   }
 
   bool isMethodAvailable(String value) => _usingMethods.contains(value);

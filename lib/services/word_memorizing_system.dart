@@ -1,10 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:miao_ji/models/user_plan.dart';
-import 'package:path/path.dart';
+import 'package:miao_ji/services/dictionary.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:miao_ji/models/memorizing_data.dart';
 import 'package:miao_ji/models/word_book.dart';
 
-class WordMemorizingSystem {
+class WordMemorizingSystem with ChangeNotifier{
   WordMemorizingSystem._();
   static final WordMemorizingSystem _singleton = WordMemorizingSystem._();
   factory WordMemorizingSystem() => _singleton;
@@ -15,6 +16,7 @@ class WordMemorizingSystem {
   UserPlan? userPlan;
   String currentWord = '';
   String currentMethod = MemorizingMethodName.englishToChineseSelection;
+
 
   Future<void> initialize() async {
     memorizingData = await MemorizingData.getInstance();
@@ -31,10 +33,15 @@ class WordMemorizingSystem {
       currentWord = currentWordBook!.userProcess!.getNextWordToReview();
     } else {
       currentMethod = MemorizingMethodName.newWordLearning;
+      notifyListeners();
       return;
     }
-    if(currentWord == '') return;
+    if(currentWord == '') {
+      notifyListeners();
+      return;
+    }
     currentMethod = userPlan!.getMethod();
+    notifyListeners();
   }
 
   void changeWordBook(String wordBookName) async {
@@ -42,5 +49,13 @@ class WordMemorizingSystem {
     currentWordBook = WordBook(wordBookName);
     await currentWordBook!.initialize();
     memorizeNextWord();
+  }
+
+  int get remainingNewWordsCount {
+    return currentWordBook!.userProcess!.wordsToLearn.length;
+  }
+
+  int get remainingReviewWordsCount {
+    return currentWordBook!.userProcess!.wordsToReview.length;
   }
 }

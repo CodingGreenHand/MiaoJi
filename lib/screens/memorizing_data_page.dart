@@ -45,6 +45,7 @@ class MemorizingDataPageComponent extends StatefulWidget {
 class MemorizingDataPageComponentState
     extends State<MemorizingDataPageComponent> {
   int? year, month, day;
+  bool isSearching = false;
 
   @override
   Widget build(BuildContext context) {
@@ -76,12 +77,12 @@ class MemorizingDataPageComponentState
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: TextField(
-            decoration: const InputDecoration(
-              hintText: '添加单词',
-              constraints: BoxConstraints(minWidth: 100, maxWidth: 1000),
+            decoration:  InputDecoration(
+              hintText: isSearching? '搜索单词' :'添加单词',//TODO:添加搜索单词功能
+              constraints: const BoxConstraints(minWidth: 100, maxWidth: 1000),
             ),
             onSubmitted: (String value) async {
-              await widget.memorizingData.update(value, 0);
+              if(!isSearching) await widget.memorizingData.update(value, 0);
               setState(() {});
             },
           ),

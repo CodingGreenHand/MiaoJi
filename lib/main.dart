@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:miao_ji/services/word_memorizing_system.dart';
 import 'package:miao_ji/screens/home_page.dart';
+import 'package:miao_ji/services/dictionary.dart';
 void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
   await WordMemorizingSystem().initialize();
   runApp(const MyApp());
 }

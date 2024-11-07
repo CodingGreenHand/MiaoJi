@@ -129,7 +129,6 @@ class WordBookComponentState extends State<WordBookComponent> {
                           child: const Text('查看'),
                           onPressed: () async {
                             Navigator.of(context).pop();
-                            //TODO: 跳转到单词本内容页
                             WordBook wordBook = await widget.wordBookManager.getWordBook(WordBookManager.wordBooks![index]);
                             if(!context.mounted) return;
                             Navigator.of(context).push(

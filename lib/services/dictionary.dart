@@ -12,7 +12,8 @@ abstract class Dictionary {
 
 class LocalDictionary implements Dictionary {  
   static LocalDictionary? _singleton;  
-  static final Map<String, String> _data = {};  
+  static final Map<String, String> _data = {}; 
+  late final List<String> words;
   final String _name = "本地词典";
   LocalDictionary._();  
 
@@ -37,7 +38,8 @@ class LocalDictionary implements Dictionary {
             _data[lastWord] = temporaryWordList[i];
           }
         }  
-      }  
+      } 
+      words = _data.keys.toList();
       //logger.d('Dictionary initialized');  
     } catch (e) {  
       // 处理异常，例如打印错误或重新抛出异常  

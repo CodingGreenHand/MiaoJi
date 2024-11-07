@@ -4,6 +4,7 @@ import 'package:miao_ji/services/ai_english_client.dart';
 import 'package:miao_ji/screens/word_query_result_page.dart';
 import 'package:miao_ji/screens/setting_page.dart';
 import 'package:miao_ji/screens/ai_client_page.dart';
+import 'package:miao_ji/screens/memorizing_method_page_components.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,8 +14,7 @@ class HomePage extends StatefulWidget {
   }
 }
 
-class HomePageState extends State<HomePage> with ChangeNotifier {
-
+class HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +30,7 @@ class HomePageState extends State<HomePage> with ChangeNotifier {
                 }));
                 await WordMemorizingSystem().initialize();
                 setState(() {
-                  notifyListeners();
+                  HomePageChangeNotifier().notify();
                 });
               },
               icon: const Icon(Icons.settings),
@@ -46,23 +46,31 @@ class HomePageState extends State<HomePage> with ChangeNotifier {
             )
           ],
         ),
-        body: Stack(
+        body: Column(
           children: [
-            Column(
-              children: [
-                TextField(
-                  decoration: const InputDecoration(
-                    labelText: '查询单词',
-                  ),
-                  onSubmitted: (value) {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => WordQueryResultPage(word: value),
-                    ));
-                  },
-                ),
-                MemorizingWordComponent(homePageUpdatedNotifier: this),
-              ],
+            TextField(
+              decoration: const InputDecoration(
+                labelText: '查询单词',
+              ),
+              onSubmitted: (value) {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => WordQueryResultPage(word: value),
+                ));
+              },
             ),
+            ListenableBuilder(
+              listenable: HomePageChangeNotifier(), 
+              builder: (BuildContext context,Widget? child){
+                return Column(children: [
+                  Text('今日剩余新词：${WordMemorizingSystem().remainingNewWordsCount}'),
+                  Text('今日剩余复习词：${WordMemorizingSystem().remainingReviewWordsCount}'),
+                  Text('''${WordMemorizingSystem().currentWordBook!.userProcess!.wordsToLearn}
+                      ${WordMemorizingSystem().currentWordBook!.userProcess!.wordsToReview}
+                      today's learn: ${WordMemorizingSystem().currentWordBook!.userProcess!.todayLearnCount}
+                      today's review: ${WordMemorizingSystem().currentWordBook!.userProcess!.todayReviewCount}''') //TODO: 删除测试用代码
+                ],);
+              }),
+            Expanded(child:MemorizingWordComponent()),
           ],
         ),
         bottomNavigationBar: WordMemorizingSystem().currentWord == ''
@@ -103,6 +111,7 @@ class HomePageState extends State<HomePage> with ChangeNotifier {
                                               121),
                                     ]);
                                     await WordMemorizingSystem().initialize();
+                                    HomePageChangeNotifier().notify();
                                     setState(() {});
                                   },
                                   child: const Text('确定'),
@@ -136,71 +145,5 @@ class HomePageState extends State<HomePage> with ChangeNotifier {
                   ),
                 ],
               )));
-  }
-}
-
-class MemorizingWordComponent extends StatelessWidget {
-  final Listenable homePageUpdatedNotifier;
-
-  const MemorizingWordComponent(
-      {super.key, required this.homePageUpdatedNotifier});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListenableBuilder(
-        listenable: homePageUpdatedNotifier,
-        builder: (BuildContext context, Widget? child) {
-          if (WordMemorizingSystem().currentWord == '') {
-            return const MemorizingWordFinishedPageComponent();
-          }
-          return DefaultMemorizingPageComponent(
-            homePageUpdatedNotifier: homePageUpdatedNotifier,
-          );
-        });
-  }
-}
-
-class MemorizingWordFinishedPageComponent extends StatelessWidget {
-  const MemorizingWordFinishedPageComponent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(child: Text('''
-恭喜！您已完成今日学习！
-You have finished today's word memorizing. Congratulations!'''));
-  }
-}
-
-class DefaultMemorizingPageComponent extends StatelessWidget {
-  const DefaultMemorizingPageComponent(
-      {super.key, required this.homePageUpdatedNotifier});
-  final Listenable homePageUpdatedNotifier;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListenableBuilder(
-        listenable: homePageUpdatedNotifier,
-        builder: (BuildContext context, Widget? child) {
-          return Center(
-              child: Column(
-            children: [
-              Text(
-                WordMemorizingSystem().currentWord,
-                style: const TextStyle(fontSize: 30),
-              ),
-              Text('current method: ${WordMemorizingSystem().currentMethod}'),
-              Text(
-                  'current word book: ${WordMemorizingSystem().currentWordBook!.name}'),
-              Text(
-                  'Words to learn: ${WordMemorizingSystem().currentWordBook!.userProcess!.wordsToLearn}'),
-              Text(
-                  'Words to review: ${WordMemorizingSystem().currentWordBook!.userProcess!.wordsToReview}'),
-              Text(
-                  'Today learned ${WordMemorizingSystem().currentWordBook!.userProcess!.todayLearnCount}'),
-              Text(
-                  'Today reviewed ${WordMemorizingSystem().currentWordBook!.userProcess!.todayReviewCount}'),
-            ],
-          ));
-        });
   }
 }

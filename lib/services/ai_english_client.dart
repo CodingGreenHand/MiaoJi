@@ -36,6 +36,7 @@ class AIEnglishClient {
   static Future<String> explainWord(String word) async{
     String requirement = 
       'Explain the meaning of the given word: $word .'
+      'Explain in English.'
       'Just output the content, don\'t say anything else.';
     try{
       return await generate(requirement);
@@ -79,7 +80,7 @@ class AIEnglishClient {
   }
 
   static Future<bool> areSynonyms(String word1, String word2) async {
-    String requirement = 'Are $word1 and $word2 synonyms? If yes, output "yes"; else output "no". Don\'t output anything else.';
+    String requirement = 'Are $word1 and $word2 synonyms? If yes, output "yes"; else output "no". If any incorrect spelling occurs, also output "no". Don\'t output anything else.';
     String result = await generate(requirement);
     if(result == errorMessage) throw Exception('Failed to judge synonyms');
     return result.toLowerCase() == 'yes';
