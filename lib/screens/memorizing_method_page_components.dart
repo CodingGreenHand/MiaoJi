@@ -165,15 +165,17 @@ class NewWordLearningPageComponentState
           children: [
             Text(widget.newWordLearning.word,
                 style: const TextStyle(fontSize: 30)),
-            ElevatedButton(
-                onPressed: () {
-                  _input = NewWordLearning.recognized;
-                  widget.newWordLearning.checkInput(_input!);
-                  WordMemorizingSystem().memorizeNextWord();
-                  HomePageChangeNotifier().notify();
-                },
-                child: const Text('认识')),
-            ElevatedButton(
+            OptionSizedBox(
+              child: ElevatedButton(
+                  onPressed: () {
+                    _input = NewWordLearning.recognized;
+                    widget.newWordLearning.checkInput(_input!);
+                    WordMemorizingSystem().memorizeNextWord();
+                    HomePageChangeNotifier().notify();
+                  },
+                  child: const Text('认识')),
+            ),
+            OptionSizedBox(child:ElevatedButton(
                 onPressed: () {
                   _input = NewWordLearning.ambiguous;
                   setState(
@@ -182,18 +184,15 @@ class NewWordLearningPageComponentState
                     },
                   );
                 },
-                child: const Text('模糊')),
-            StyleChangeableButton(
-                finalButtonStyle: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Colors.red),
-                ),
+                child: const Text('模糊'))),
+            OptionSizedBox(child:ElevatedButton(
                 onPressed: () {
                   _input = NewWordLearning.notRecognized;
                   setState(() {
                     answered = true;
                   });
                 },
-                child: const Text('不认识')),
+                child: const Text('不认识'))),
           ],
         ),
       );
@@ -206,7 +205,8 @@ class NewWordLearningPageComponentState
         FutureBuilder(
           future: LocalDictionary.getInstance(),
           builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData &&
+                snapshot.connectionState == ConnectionState.done) {
               return Text(snapshot.data!.query(widget.newWordLearning.word));
             } else if (snapshot.hasError) {
               return const Text('');
@@ -215,7 +215,7 @@ class NewWordLearningPageComponentState
           },
         ),
         Center(
-          child: ElevatedButton(
+          child: OptionSizedBox(child:ElevatedButton(
             onPressed: () {
               answered = false;
               widget.newWordLearning.checkInput(_input!);
@@ -223,7 +223,7 @@ class NewWordLearningPageComponentState
               HomePageChangeNotifier().notify();
             },
             child: const Text('继续学习'),
-          ),
+          )),
         )
       ],
     ));
@@ -257,15 +257,15 @@ class WordRecognitionCheckPageComponentState
           children: [
             Text(widget.wordRecognitionCheck.word,
                 style: const TextStyle(fontSize: 30)),
-            ElevatedButton(
+            OptionSizedBox(child:ElevatedButton(
                 onPressed: () {
                   _input = WordRecognitionCheck.recognized;
                   widget.wordRecognitionCheck.checkInput(_input!);
                   WordMemorizingSystem().memorizeNextWord();
                   HomePageChangeNotifier().notify();
                 },
-                child: const Text('认识')),
-            ElevatedButton(
+                child: const Text('认识'))),
+            OptionSizedBox(child:ElevatedButton(
                 onPressed: () {
                   _input = WordRecognitionCheck.ambiguous;
                   setState(
@@ -274,18 +274,15 @@ class WordRecognitionCheckPageComponentState
                     },
                   );
                 },
-                child: const Text('模糊')),
-            StyleChangeableButton(
-                finalButtonStyle: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Colors.red),
-                ),
+                child: const Text('模糊'))),
+            OptionSizedBox(child:ElevatedButton(
                 onPressed: () {
                   _input = WordRecognitionCheck.notRecognized;
                   setState(() {
                     answered = true;
                   });
                 },
-                child: const Text('不认识')),
+                child: const Text('不认识'))),
           ],
         ),
       );
@@ -299,7 +296,8 @@ class WordRecognitionCheckPageComponentState
         FutureBuilder(
           future: LocalDictionary.getInstance(),
           builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasData &&
+                snapshot.connectionState == ConnectionState.done) {
               return Text(
                   snapshot.data!.query(widget.wordRecognitionCheck.word));
             } else if (snapshot.hasError) {
@@ -309,14 +307,14 @@ class WordRecognitionCheckPageComponentState
           },
         ),
         Center(
-          child: ElevatedButton(
+          child: OptionSizedBox(child:ElevatedButton(
             onPressed: () {
               answered = false;
               widget.wordRecognitionCheck.checkInput(_input!);
               WordMemorizingSystem().memorizeNextWord();
               HomePageChangeNotifier().notify();
             },
-            child: const Text('继续学习'),
+            child: const Text('继续学习')),
           ),
         )
       ],
@@ -352,13 +350,14 @@ class ChineseToEnglishSpellingPageComponentState
           FutureBuilder(
               future: LocalDictionary.getInstance(),
               builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasData &&
+                    snapshot.connectionState == ConnectionState.done) {
                   return Text(
                       snapshot.data!
                           .query(widget.chineseToEnglishSpelling.word),
                       style: const TextStyle(fontSize: 30));
                 } else if (snapshot.hasError) {
-                  return const Text('Error');
+                  return Text('Error:${snapshot.error}');
                 }
                 return const Text('加载中文意思......');
               }),
@@ -380,7 +379,8 @@ class ChineseToEnglishSpellingPageComponentState
                 return FutureBuilder(
                     future: widget.chineseToEnglishSpelling.checkInput(_input!),
                     builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasData &&
+                          snapshot.connectionState == ConnectionState.done) {
                         judgeResult = snapshot.data!;
                         if (judgeResult == 'synonyms') {
                           return Text('是 $_input 的近义词,请尝试输入其它词汇');
@@ -392,14 +392,14 @@ class ChineseToEnglishSpellingPageComponentState
                                 ? const Text('恭喜你，回答正确！')
                                 : Text(
                                     '回答错误，正确答案是 ${widget.chineseToEnglishSpelling.word}'),
-                            ElevatedButton(
+                            OptionSizedBox(child:ElevatedButton(
                                 onPressed: () {
                                   answered = false;
                                   judgeResult = 'synonyms';
                                   WordMemorizingSystem().memorizeNextWord();
                                   HomePageChangeNotifier().notify();
                                 },
-                                child: const Text('继续学习'))
+                                child: const Text('继续学习')))
                           ],
                         );
                       } else if (snapshot.hasError) {
@@ -453,7 +453,8 @@ class ChineseToEnglishSelectionPageComponentState
     return FutureBuilder(
         future: widget.chineseToEnglishSelection.getOptions(),
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData &&
+              snapshot.connectionState == ConnectionState.done) {
             options = snapshot.data!;
             return Center(
               child: Column(
@@ -461,13 +462,14 @@ class ChineseToEnglishSelectionPageComponentState
                   FutureBuilder(
                     future: LocalDictionary.getInstance(),
                     builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasData &&
+                          snapshot.connectionState == ConnectionState.done) {
                         return Text(
                             snapshot.data!
                                 .query(widget.chineseToEnglishSelection.word),
                             style: const TextStyle(fontSize: 30));
                       } else if (snapshot.hasError) {
-                        return const Text('Error');
+                        return Text('Error:${snapshot.error}');
                       }
                       return const Text('加载中文意思......');
                     },
@@ -477,30 +479,30 @@ class ChineseToEnglishSelectionPageComponentState
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          ElevatedButton(
+                          OptionSizedBox(child:ElevatedButton(
                               onPressed: () {
                                 _input = options![0];
                                 optionOnPressed();
                               },
-                              child: Text(options![0])),
-                          ElevatedButton(
+                              child: Text(options![0]))),
+                          OptionSizedBox(child:ElevatedButton(
                               onPressed: () {
                                 _input = options![1];
                                 optionOnPressed();
                               },
-                              child: Text(options![1])),
-                          ElevatedButton(
+                              child: Text(options![1]))),
+                          OptionSizedBox(child:ElevatedButton(
                               onPressed: () {
                                 _input = options![2];
                                 optionOnPressed();
                               },
-                              child: Text(options![2])),
-                          ElevatedButton(
+                              child: Text(options![2]))),
+                          OptionSizedBox(child:ElevatedButton(
                               onPressed: () {
                                 _input = options![3];
                                 optionOnPressed();
                               },
-                              child: Text(options![3])),
+                              child: Text(options![3]))),
                         ],
                       );
                     } else {
@@ -509,13 +511,13 @@ class ChineseToEnglishSelectionPageComponentState
                           children: [
                             Text(
                                 '回答错误，正确答案是 ${widget.chineseToEnglishSelection.word}'),
-                            ElevatedButton(
+                            OptionSizedBox(child:ElevatedButton(
                                 onPressed: () {
                                   answered = false;
                                   WordMemorizingSystem().memorizeNextWord();
                                   HomePageChangeNotifier().notify();
                                 },
-                                child: const Text('继续学习')),
+                                child: const Text('继续学习'))),
                           ]);
                     }
                   }))
@@ -553,7 +555,7 @@ class EnglishToChineseSelectionPageComponentState
     setState(() {
       widget.englishToChineseSelection.checkInput(_input!);
       answered = true;
-      if (_input == widget.englishToChineseSelection.word) {
+      if (_input! == widget.englishToChineseSelection.word) {
         answered = false;
         WordMemorizingSystem().memorizeNextWord();
         HomePageChangeNotifier().notify();
@@ -566,7 +568,8 @@ class EnglishToChineseSelectionPageComponentState
     return FutureBuilder(
         future: widget.englishToChineseSelection.getOptions(),
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData &&
+              snapshot.connectionState == ConnectionState.done) {
             options = snapshot.data!;
             return Center(
               child: Column(
@@ -576,40 +579,41 @@ class EnglishToChineseSelectionPageComponentState
                   FutureBuilder(
                     future: LocalDictionary.getInstance(),
                     builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasData &&
+                          snapshot.connectionState == ConnectionState.done) {
                         return Expanded(child: Builder(builder: (context) {
                           if (!answered) {
                             return Column(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                ElevatedButton(
+                                OptionSizedBox(child:ElevatedButton(
                                     onPressed: () {
                                       _input = options![0];
                                       optionOnPressed();
                                     },
                                     child: Text(
-                                        snapshot.data!.query(options![0]))),
-                                ElevatedButton(
+                                        snapshot.data!.query(options![0])))),
+                                OptionSizedBox(child:ElevatedButton(
                                     onPressed: () {
                                       _input = options![1];
                                       optionOnPressed();
                                     },
                                     child: Text(
-                                        snapshot.data!.query(options![1]))),
-                                ElevatedButton(
+                                        snapshot.data!.query(options![1])))),
+                                OptionSizedBox(child:ElevatedButton(
                                     onPressed: () {
                                       _input = options![2];
                                       optionOnPressed();
                                     },
                                     child: Text(
-                                        snapshot.data!.query(options![2]))),
-                                ElevatedButton(
+                                        snapshot.data!.query(options![2])))),
+                                OptionSizedBox(child:ElevatedButton(
                                     onPressed: () {
                                       _input = options![3];
                                       optionOnPressed();
                                     },
                                     child: Text(
-                                        snapshot.data!.query(options![3]))),
+                                        snapshot.data!.query(options![3])))),
                               ],
                             );
                           } else {
@@ -619,14 +623,14 @@ class EnglishToChineseSelectionPageComponentState
                                 children: [
                                   Text(
                                       '回答错误，正确答案是 ${snapshot.data!.query(widget.englishToChineseSelection.word)}'),
-                                  ElevatedButton(
+                                  OptionSizedBox(child:ElevatedButton(
                                       onPressed: () {
                                         answered = false;
                                         WordMemorizingSystem()
                                             .memorizeNextWord();
                                         HomePageChangeNotifier().notify();
                                       },
-                                      child: const Text('继续学习')),
+                                      child: const Text('继续学习'))),
                                 ]);
                           }
                         }));
@@ -683,7 +687,8 @@ class SentenceGapFillingPageComponentState
     return FutureBuilder(
         future: widget.sentenceGapFilling.initialize(),
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              widget.sentenceGapFilling.gapIndex >= 0) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -714,7 +719,8 @@ class SentenceGapFillingPageComponentState
                         return FutureBuilder(
                           future: widget.sentenceGapFilling.checkInput(_input!),
                           builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.done) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.done) {
                               judgeResult = snapshot.data!;
                               if (judgeResult == 'synonyms') {
                                 return Text('是 $_input 的近义词,请尝试输入其它词汇');
@@ -725,7 +731,7 @@ class SentenceGapFillingPageComponentState
                                       ? const Text('恭喜你，回答正确！')
                                       : Text(
                                           '回答错误，正确答案是 ${widget.sentenceGapFilling.word}'),
-                                  ElevatedButton(
+                                  OptionSizedBox(child:ElevatedButton(
                                     onPressed: () {
                                       answered = false;
                                       judgeResult = 'synonyms';
@@ -733,7 +739,7 @@ class SentenceGapFillingPageComponentState
                                       HomePageChangeNotifier().notify();
                                       setState(() {});
                                     },
-                                    child: const Text('继续学习'),
+                                    child: const Text('继续学习')),
                                   )
                                 ],
                               );
@@ -750,11 +756,17 @@ class SentenceGapFillingPageComponentState
                 ],
               ),
             );
-          } else if (snapshot.hasError) {
+          } else if (snapshot.hasError ||
+              (snapshot.connectionState == ConnectionState.done &&
+                  widget.sentenceGapFilling.gapIndex < 0)) {
             WordMemorizingSystem()
                 .changeMethod(MemorizingMethodName.wordRecognitionCheck);
-            HomePageChangeNotifier().notify();
-            return const Text('Error');
+            return Center(
+                child: OptionSizedBox(child:ElevatedButton(
+                    onPressed: () {
+                      HomePageChangeNotifier().notify();
+                    },
+                    child: const Text('AI造句填词暂无法使用，点此继续'))));
           }
           return const Center(
             child: Text('加载中...'),

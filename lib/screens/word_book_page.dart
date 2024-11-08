@@ -1,7 +1,9 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:miao_ji/screens/word_book_content_page.dart';
 import 'package:miao_ji/models/word_book.dart';
 import 'package:miao_ji/services/word_memorizing_system.dart';
+import 'dart:io';
 
 class WordBookPage extends StatefulWidget {
   const WordBookPage({super.key});
@@ -21,7 +23,7 @@ class WordBookPageState extends State<WordBookPage> {
       body:FutureBuilder(
         future: WordBookManager.getInstance(), 
         builder: (context, snapshot) {
-          if(snapshot.hasData){
+          if(snapshot.hasData && snapshot.connectionState == ConnectionState.done){
             return WordBookComponent(wordBookManager: snapshot.data!);
           }
           else if(snapshot.hasError){
@@ -135,7 +137,30 @@ class WordBookComponentState extends State<WordBookComponent> {
                               MaterialPageRoute(builder: (context) => WordBookContentPage(wordBook: wordBook),)
                             );
                           },
-                        )
+                        ),
+                        SimpleDialogOption(
+                          child: const Text('从文件中导入单词'),
+                          onPressed: () async {
+                            try{
+                              FilePickerResult? result = await FilePicker.platform.pickFiles();
+                              if(result == null){
+                                throw Exception('未选择文件');
+                              }
+                              WordBook wordBook = await widget.wordBookManager.getWordBook(WordBookManager.wordBooks![index]);
+                              wordBook.loadFromFile(File(result.files.single.path!));
+                              if(!context.mounted) return;
+                              ScaffoldMessenger.of(context)
+                                 ..removeCurrentSnackBar()
+                                 ..showSnackBar(const SnackBar(content: Text('导入成功')));
+                            }
+                            catch(e){
+                              if(!context.mounted) return;
+                              ScaffoldMessenger.of(context)
+                                  ..removeCurrentSnackBar()
+                                  ..showSnackBar(SnackBar(content: Text('$e')));
+                            }
+                          }
+                        ),
                       ]
                     )
                   );

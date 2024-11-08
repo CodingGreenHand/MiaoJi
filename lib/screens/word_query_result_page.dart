@@ -17,7 +17,7 @@ class WordQueryResultPage extends StatelessWidget {
         body: FutureBuilder(
             future: LocalDictionary.getInstance(),
             builder: (context, snapshot) {
-              if (snapshot.hasData) {
+              if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
                 return WordQueryResultPageBody(
                     word: word, dictionary: snapshot.data!);
               } else if (snapshot.hasError) {
@@ -65,7 +65,7 @@ class WordQueryResultPageBodyState extends State<WordQueryResultPageBody> {
           FutureBuilder(
               future: AIEnglishClient.explainWord(widget.word),
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
+                if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
                   return Text(snapshot.data!);
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));
@@ -81,7 +81,7 @@ class WordQueryResultPageBodyState extends State<WordQueryResultPageBody> {
           FutureBuilder(
               future: AIEnglishClient.generateSentence(widget.word),
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
+                if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
                   return Text(snapshot.data!);
                 } else if (snapshot.hasError) {
                   return Center(child: Text('Error: ${snapshot.error}'));

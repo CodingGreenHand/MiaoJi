@@ -21,11 +21,30 @@ class UserProcess {
     return now.day!= lastTime.day;
   }
 
-  //TODO: detail the logic
   bool _needsToReview(Map<String,dynamic> wordData){
-    if(wordData['score'] <= 120) return true;
+    if(wordData['score'] == null) return true;
+    int score = wordData['score'];
+    if(score > 120) return false;
+    if(score <= 20) return true;
+    DateTime lastMemorizingTime = DateTime.parse(wordData['last_memorizing_time']);
+    Duration interval = DateTime.now().difference(lastMemorizingTime);
+    final List<int> expectedIntervalsInDays = [1,2,4,7,15];
+    if(score <= 40){
+      return interval.inDays >= expectedIntervalsInDays[0];
+    }
+    else if(score <= 60){
+      return interval.inDays >= expectedIntervalsInDays[1];
+    }
+    else if(score <= 80){
+      return interval.inDays >= expectedIntervalsInDays[2];
+    }
+    else if(score <= 100){
+      return interval.inDays >= expectedIntervalsInDays[3];
+    }
+    else if(score <= 120){
+      return interval.inDays >= expectedIntervalsInDays[4];
+    }
     return false;
-    //if(wordData['score'] <= 20 && wordData['last_memorizing_time'])
   }
 
   Future<void> initialize(String wordBookName) async{
@@ -41,12 +60,14 @@ class UserProcess {
     UserPlan userPlan = await UserPlan.getInstance();
     int neededNewWordCount = (userPlan.dailyLearnNum - todayLearnCount)>0? (userPlan.dailyLearnNum - todayLearnCount) : 0;
     int neededReviewCount = (userPlan.dailyReviewNum - todayReviewCount)>0? (userPlan.dailyReviewNum - todayReviewCount) : 0;
+    String orderSql = userPlan.memorizingOrder == MemorizingOrder.sequential? 'ASC' : 'DESC';
     List<Map<String, dynamic>> newWordQueryResult = await database!.rawQuery('''SELECT wb.word FROM ${TableNames.wordBookPrefix + wordBookName} AS wb
     WHERE NOT EXISTS(
       SELECT 1
       FROM ${TableNames.memorizingData} AS md
       WHERE md.word = wb.word
     )
+    ORDER BY wb.word $orderSql
     LIMIT $neededNewWordCount
     ''');
     List<Map<String,dynamic>> mutableList = [...newWordQueryResult];
@@ -62,9 +83,10 @@ class UserProcess {
       FROM ${TableNames.wordBookPrefix + wordBookName} AS wb
       WHERE md.word = wb.word AND md.score <= 120
     )
+    ORDER BY md.score $orderSql
     LIMIT $neededReviewCount
     ''');
-    mutableList = [...learnedWordQueryResult];
+    mutableList = [...learnedWordQueryResult] + mutableList;
     if (userPlan.memorizingOrder == MemorizingOrder.random){
       mutableList.shuffle(Random(DateTime.now().millisecondsSinceEpoch));
     }

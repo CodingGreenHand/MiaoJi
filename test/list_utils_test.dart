@@ -36,4 +36,24 @@ void main() {
 
     // 可以添加更多测试用例来覆盖其他边界情况和异常情况
   });
+
+  group('ListUtils.hasRepeatedElements',(){
+    test('should return false when list has no repeated element',(){
+      final list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+      final result = ListUtils.hasRepeatedElements(list);
+      expect(result, isFalse);
+    });
+
+    test('should return true when list has repeated element',(){
+      final list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1];
+      final result = ListUtils.hasRepeatedElements(list);
+      expect(result, isTrue);
+    });
+
+    test('should return false when list is empty',(){
+      final list = [];
+      final result = ListUtils.hasRepeatedElements(list);
+      expect(result, isFalse);
+    });
+  });
 }

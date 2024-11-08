@@ -45,3 +45,18 @@ class StyleChangeableButtonState extends State<StyleChangeableButton> {
           );
   }
 }
+
+class OptionSizedBox extends StatelessWidget{
+  final Widget? child;
+
+  const OptionSizedBox({super.key,this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 200,
+      height: 50,
+      child: child
+    );
+  }
+}

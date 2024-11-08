@@ -75,18 +75,18 @@ class HomePageState extends State<HomePage> {
                 ));
               },
             ),
-            /*ListenableBuilder(
+            ListenableBuilder(
               listenable: HomePageChangeNotifier(), 
               builder: (BuildContext context,Widget? child){
                 return Column(children: [
                   Text('今日剩余新词：${WordMemorizingSystem().remainingNewWordsCount}'),
                   Text('今日剩余复习词：${WordMemorizingSystem().remainingReviewWordsCount}'),
-                  Text('''${WordMemorizingSystem().currentWordBook!.userProcess!.wordsToLearn}
+                  /*Text('''${WordMemorizingSystem().currentWordBook!.userProcess!.wordsToLearn}
                       ${WordMemorizingSystem().currentWordBook!.userProcess!.wordsToReview}
                       today's learn: ${WordMemorizingSystem().currentWordBook!.userProcess!.todayLearnCount}
-                      today's review: ${WordMemorizingSystem().currentWordBook!.userProcess!.todayReviewCount}''') //TODO: 删除测试用代码
+                      today's review: ${WordMemorizingSystem().currentWordBook!.userProcess!.todayReviewCount}''')*/ //测试用代码
                 ],);
-              }),*/
+              }),
             Expanded(child:MemorizingWordComponent()),
           ],
         ),

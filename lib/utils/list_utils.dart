@@ -19,4 +19,9 @@ class ListUtils{
     }
     return result;
   }
+
+  static bool hasRepeatedElements(List list){
+    Set set = list.toSet();
+    return set.length!= list.length;
+  }
 }

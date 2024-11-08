@@ -25,7 +25,7 @@ class MemorizingData {
   Future<void> update(String word,int score)async {
     List<Map<String, dynamic>> result = await database!.query(TableNames.memorizingData, where: 'word = ?', whereArgs: [word]);
     if(result.isEmpty){
-      await database!.insert(TableNames.memorizingData, {'word': word,'score': score,'last_memorizing_time':DateTimeFormalizer.truncateToDate(DateTime.now()).toIso8601String()});
+      if(score > 0) await database!.insert(TableNames.memorizingData, {'word': word,'score': score,'last_memorizing_time':DateTimeFormalizer.truncateToDate(DateTime.now()).toIso8601String()});
     }else{
       if(result.first['score'] < score){
         await database!.update(TableNames.memorizingData,{'last_memorizing_time':DateTimeFormalizer.truncateToDate(DateTime.now()).toIso8601String()},where: 'word = ?', whereArgs: [word]);

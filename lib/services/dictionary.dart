@@ -27,7 +27,7 @@ class LocalDictionary implements Dictionary {
       //logger.d('Dictionary file parsed');
       String lastWord = "";
       for (int i = 0; i < temporaryWordList.length; i ++) {
-        if(RegExp(r'^[A-Za-z]+$').hasMatch(temporaryWordList[i])){
+        if(RegExp(r'^[A-Za-z-]+$').hasMatch(temporaryWordList[i])){
           lastWord = temporaryWordList[i];
         }
         else{

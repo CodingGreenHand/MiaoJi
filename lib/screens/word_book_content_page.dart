@@ -26,7 +26,7 @@ class WordBookContentPageState extends State<WordBookContentPage> {
             FutureBuilder(
               future: widget.wordBook.getWords(),
               builder: (context, snapshot) {
-                if(snapshot.hasData){
+                if(snapshot.hasData && snapshot.connectionState == ConnectionState.done){
                   return WordBookContentPageComponent(words: snapshot.data!,wordBook:widget.wordBook,onWordChanged: () => setState((){}));
                 }
                 else if(snapshot.hasError){

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miao_ji/services/ai_english_client.dart';
+import 'package:flutter/services.dart';
 
 class AiClientResultPage extends StatelessWidget{
   final int wordNum;
@@ -18,8 +19,25 @@ class AiClientResultPage extends StatelessWidget{
         child:FutureBuilder(
           future: AIEnglishClient.generatePassageByWords(AIEnglishClient.words,wordNum), 
           builder: (context,snapshot){
-            if(snapshot.hasData){
-              return Center(child: SingleChildScrollView(child: Text(snapshot.data!)),);
+            if(snapshot.hasData && snapshot.connectionState == ConnectionState.done){
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    SingleChildScrollView(child: Text(snapshot.data!)),
+                    ElevatedButton(
+                      onPressed:()async {
+                        try{
+                          Clipboard.setData(ClipboardData(text: snapshot.data!));
+                        }catch(e){
+                          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('复制失败')));
+                        }
+                      },
+                      child: const Text('复制全文')
+                    )
+                  ],
+                )
+                );
             }
             else if(snapshot.hasError){
               return Center(child: Text('Error: ${snapshot.error}'));

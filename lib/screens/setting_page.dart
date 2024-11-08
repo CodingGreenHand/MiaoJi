@@ -22,7 +22,7 @@ class SettingPageState extends State<SettingPage> {
           child: FutureBuilder<UserPlan>(
             future: UserPlan.getInstance(),
             builder: (context, snapshot) {
-              if (snapshot.hasData) {
+              if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
                 return SettingPageComponent(snapshot.data!);
               } else if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');

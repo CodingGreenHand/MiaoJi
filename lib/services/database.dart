@@ -23,13 +23,12 @@ class DBProvider{
     return _database!;
   }
 
-  //TODO: change the path to the correct one
   static _initDB() async{
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
-    //Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    //String path = join(documentsDirectory.path, 'hello_world.db');
-    String path = 'hello_world.db';
+    Directory documentsDirectory = await getApplicationDocumentsDirectory();
+    String path = join(documentsDirectory.path, 'hello_world.db');
+    //测试用路径：String path = 'hello_world.db';
     return await openDatabase(path, version: 1, onOpen: (db){});
   }
 

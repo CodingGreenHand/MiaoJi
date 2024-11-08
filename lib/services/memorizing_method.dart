@@ -17,7 +17,7 @@ class NewWordLearning {
   NewWordLearning(this.word);
 
   checkInput(String input) {
-    if (input == recognized) {
+    if (input.toLowerCase() == recognized.toLowerCase()) {
       WordMemorizingSystem().memorizingData.updateBy(word, increment);
       WordMemorizingSystem()
           .currentWordBook!
@@ -41,13 +41,15 @@ class MemorizingMethod {
   MemorizingMethod(this.word);
 
   checkInput(String input) {
-    if (input == word) {
+    if (input.toLowerCase() == word.toLowerCase()) {
       WordMemorizingSystem().memorizingData.updateBy(word, increment);
       WordMemorizingSystem()
           .currentWordBook!
           .userProcess!
           .updateReviewingProgress(true);
     } else {
+      WordMemorizingSystem().memorizingData.updateBy(word, penalty);
+      WordMemorizingSystem().memorizingData.updateBy(input, penalty);
       WordMemorizingSystem()
           .currentWordBook!
           .userProcess!
@@ -97,7 +99,7 @@ class ChineseToEnglishSpelling extends MemorizingMethod {
   /// 返回'correct','synonyms','incorrect'
   @override
   Future<String> checkInput(String input) async {
-    if (input == word) {
+    if (input.toLowerCase() == word.toLowerCase()) {
       WordMemorizingSystem().memorizingData.updateBy(word, increment);
       WordMemorizingSystem()
           .currentWordBook!
@@ -105,18 +107,23 @@ class ChineseToEnglishSpelling extends MemorizingMethod {
           .updateReviewingProgress(true);
       return 'correct';
     }
-    bool areSynonyms = await AIEnglishClient.areSynonyms(word, input);
-    if (areSynonyms) return 'synonyms';
-    WordMemorizingSystem().memorizingData.updateBy(word, penalty);
-    WordMemorizingSystem()
-        .currentWordBook!
-        .userProcess!
-        .appendWordToReview(word);
-    WordMemorizingSystem()
-        .currentWordBook!
-        .userProcess!
-        .updateReviewingProgress(false);
-    return 'incorrect';
+    try{
+      bool areSynonyms = await AIEnglishClient.areSynonyms(word, input);
+      if (areSynonyms) return 'synonyms';
+      WordMemorizingSystem().memorizingData.updateBy(word, penalty);
+      WordMemorizingSystem().memorizingData.updateBy(input, penalty);
+      WordMemorizingSystem()
+          .currentWordBook!
+          .userProcess!
+          .appendWordToReview(word);
+      WordMemorizingSystem()
+          .currentWordBook!
+          .userProcess!
+          .updateReviewingProgress(false);
+      return 'incorrect';
+    }catch(e){
+      return 'incorrect';
+    }
   }
 }
 
@@ -144,9 +151,21 @@ class EnglishToChineseSelection extends MemorizingMethod {
   Future<List<String>> getOptions() async {
     if (_options == null) {
       LocalDictionary dictionary = await LocalDictionary.getInstance();
-      _options = ListUtils.getRandomElements(dictionary.words, 3);
+      bool haveSameElement = false;
+      List<String> optionsFromWordBook;
+      List<String> optionsFromDictionary;
+      do{
+        optionsFromWordBook = [];
+        List<String> originalOptions = ListUtils.getRandomElements(await WordMemorizingSystem().currentWordBook!.getWords(), 2);
+        for(String option in originalOptions){
+          if(dictionary.query(option) != '') optionsFromWordBook.add(option);
+        }
+        optionsFromDictionary = ListUtils.getRandomElements(dictionary.words, 3-optionsFromWordBook.length);
+        haveSameElement = ListUtils.hasRepeatedElements(optionsFromWordBook + optionsFromDictionary + [word]);
+      }while(haveSameElement);// 保证没有重复选项，且每个选项都能在本地词典查到
+      _options = optionsFromWordBook + optionsFromDictionary;
       _options!.insert(
-          Random(DateTime.now().millisecondsSinceEpoch).nextInt(4), word);
+          Random(DateTime.now().millisecondsSinceEpoch).nextInt(_options!.length), word);
     }
     return _options!;
   }
@@ -162,55 +181,6 @@ class SentenceGapFilling extends MemorizingMethod {
   String get translation => _translation;
 
   Future<String> requestAI() async {
-    /*final String requirement =
-        '''
-        Please generate a sentence with the word "$word" in it.
-        You should output the content in the following format:
-        In the first line, output the sentence you generated.
-        In the second line, output a number indicating the position of the gap. 
-        The position means the index if the sentence is separated into elements in which the types are word or mark (e.g. punctuation).
-        The index starts from 0. 
-        If the sentence you generated has multiple positions of the given word, output the first one.
-        
-        Example 1:
-        Input: 
-        apple
-
-        Output:
-        I like eating apples.
-        3
-
-        Explanation:
-        You generated a sentence with the word "apple" in it.
-        In this sentence, elements are: "I","like","eating","apples","."
-        If index starts from 0, the position of the word "apple" in the sentence is 3.
-
-        Example 2:
-        Input:
-        fly
-
-        Output:
-        Because of the sudden noise, the bird flew away.
-        8
-
-        Explanation:
-        You generate a sentence with the word "fly" in it. It's OK to use forms different from the original word.
-        In this sentence, elements are: "Because","of","the","sudden","noise",",","the","bird","flew","away","." 
-        If index starts from 0, the position of the word "fly" in the sentence is 8. Note that "," is considered as a single element.
-
-        Example 3:
-        Input:
-        dog
-
-        Output:
-        "Everyone loves dogs." He said, "I love dogs too."
-        3
-
-        Explanation:
-        You generated a sentence with the word "dog" in it.
-        In this sentence, elements are: "\\"" "Everyone","loves","dogs",".","\\"","He","said",",","\\"","I","love","dogs","too",".","\\""
-        If index starts from 0, the first position of the word "dog" in the sentence is 3. Note that ",","\\"" and "." are considered as single elements.
-        ''';*/
     String requirement ='''
       Please generate a sentence with the word "$word" in it. Don't change the form of the word (Uppercase is acceptable).
       Don't output anything else.
@@ -269,7 +239,7 @@ class SentenceGapFilling extends MemorizingMethod {
 
   @override
   Future<String> checkInput(String input) async {
-    if (input == word) {
+    if (input.toLowerCase() == word.toLowerCase()) {
       WordMemorizingSystem().memorizingData.updateBy(word, increment);
       WordMemorizingSystem()
           .currentWordBook!
@@ -277,17 +247,22 @@ class SentenceGapFilling extends MemorizingMethod {
           .updateReviewingProgress(true);
       return 'correct';
     }
-    bool areSynonyms = await AIEnglishClient.areSynonyms(word, input);
-    if (areSynonyms) return 'synonyms';
-    WordMemorizingSystem().memorizingData.updateBy(word, penalty);
-    WordMemorizingSystem()
-        .currentWordBook!
-        .userProcess!
-        .appendWordToReview(word);
-    WordMemorizingSystem()
-        .currentWordBook!
-        .userProcess!
-        .updateReviewingProgress(false);
-    return 'incorrect';
+    try{
+      bool areSynonyms = await AIEnglishClient.areSynonyms(word, input);
+      if (areSynonyms) return 'synonyms';
+      WordMemorizingSystem().memorizingData.updateBy(word, penalty);
+      WordMemorizingSystem().memorizingData.updateBy(input, penalty);
+      WordMemorizingSystem()
+          .currentWordBook!
+          .userProcess!
+          .appendWordToReview(word);
+      WordMemorizingSystem()
+          .currentWordBook!
+          .userProcess!
+          .updateReviewingProgress(false);
+      return 'incorrect';
+    }catch(e){
+      return 'incorrect';
+    }
   }
 }

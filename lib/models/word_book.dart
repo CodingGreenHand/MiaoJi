@@ -1,8 +1,8 @@
+import 'dart:io';
 import 'package:miao_ji/services/database.dart';
 import 'package:miao_ji/models/user_process.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 class WordBookManager{
   static const String defaultWordBookName = 'default';
@@ -122,5 +122,13 @@ class WordBook {
   Future<void> deleteTable() async {
     database ??= await DBProvider.database;
     await database!.execute('''DROP TABLE IF EXISTS ${TableNames.wordBookPrefix + name}''');
+  }
+
+  void loadFromFile(File file){
+    String content = file.readAsStringSync();
+    List<String> words = content.split(RegExp(r'\s+'));
+    for(String word in words){
+      if(word.isNotEmpty) addWord(word);
+    }
   }
 }
