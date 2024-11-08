@@ -380,7 +380,6 @@ class ChineseToEnglishSpellingPageComponentState
                   ),
                   onSubmitted: (value) {
                     if (judgeResult == 'synonyms') {
-                      _controller.clear();
                       _input = value;
                       answered = true;
                       setState(() {});
@@ -396,19 +395,27 @@ class ChineseToEnglishSpellingPageComponentState
                           snapshot.connectionState == ConnectionState.done) {
                         judgeResult = snapshot.data!;
                         if (judgeResult == 'synonyms') {
+                          Future.delayed(Duration.zero,(){
+                            _controller.clear();
+                          });
                           return Text('是 $_input 的近义词,请尝试输入其它词汇');
                         }
 
+                        answered = false;
                         return Column(
                           children: [
-                            judgeResult == 'correct'
-                                ? const Text('恭喜你，回答正确！')
-                                : Text(
-                                    '回答错误，正确答案是 ${widget.chineseToEnglishSpelling.word}'),
+                            Builder(builder:(context) {
+                              if(judgeResult == 'correct'){
+                                judgeResult = 'synonyms';
+                                return const Text('恭喜你，回答正确！',style: TextStyle(fontSize: 20),);
+                              }
+                              judgeResult = 'synonyms';
+                              return Text('回答错误，正确答案是 ${widget.chineseToEnglishSpelling.word}',style: const TextStyle(fontSize: 20),);
+                            },),
+                            
                             OptionSizedBox(
                                 child: ElevatedButton(
                                     onPressed: () {
-                                      answered = false;
                                       judgeResult = 'synonyms';
                                       _controller.clear();
                                       WordMemorizingSystem().memorizeNextWord();
@@ -732,7 +739,6 @@ class SentenceGapFillingPageComponentState
                         controller: _controller,
                         onSubmitted: (value) {
                           if (judgeResult == 'synonyms') {
-                            _controller.clear();
                             answered = true;
                             _input = value;
                             SentenceGapFillingPageComponentNotifier().notify();
@@ -750,21 +756,34 @@ class SentenceGapFillingPageComponentState
                                 ConnectionState.done) {
                               judgeResult = snapshot.data!;
                               if (judgeResult == 'synonyms') {
-                                return Text('是 $_input 的近义词,请尝试输入其它词汇');
+                                return Builder(builder: (context) {
+                                  Future.delayed(Duration.zero, () {
+                                    _controller.clear();
+                                  });
+                                  return Text('是 $_input 的近义词,请尝试输入其它词汇',
+                                      style: const TextStyle(fontSize: 20));
+                                });
                               }
+                              answered = false;
+                              WordMemorizingSystem().memorizeNextWord();
                               return Column(
                                 children: [
-                                  judgeResult == 'correct'
-                                      ? const Text('恭喜你，回答正确！')
-                                      : Text(
-                                          '回答错误，正确答案是 ${widget.sentenceGapFilling.word}'),
+                                  Builder(
+                                    builder: (context) {
+                                      if (judgeResult == 'correct') {
+                                        judgeResult = 'synonyms';
+                                        return const Text('恭喜你，回答正确！',
+                                            style: TextStyle(fontSize: 20));
+                                      }
+                                      judgeResult = 'synonyms';
+                                      return Text(
+                                          '回答错误，正确答案是 ${widget.sentenceGapFilling.word}',
+                                          style: const TextStyle(fontSize: 20));
+                                    },
+                                  ),
                                   OptionSizedBox(
                                     child: ElevatedButton(
                                         onPressed: () {
-                                          answered = false;
-                                          judgeResult = 'synonyms';
-                                          WordMemorizingSystem()
-                                              .memorizeNextWord();
                                           HomePageChangeNotifier().notify();
                                           _controller.clear();
                                           setState(() {});
