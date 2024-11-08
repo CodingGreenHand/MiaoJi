@@ -91,7 +91,8 @@ class MemorizingWordFinishedPageComponent extends StatelessWidget {
             Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
       const Text('''
 恭喜！您已完成今日学习！
-You have finished today's word memorizing. Congratulations!'''),
+You have finished today's word memorizing. Congratulations!
+'''),
       ElevatedButton(
           onPressed: () async {
             await WordMemorizingSystem()
@@ -175,24 +176,26 @@ class NewWordLearningPageComponentState
                   },
                   child: const Text('认识')),
             ),
-            OptionSizedBox(child:ElevatedButton(
-                onPressed: () {
-                  _input = NewWordLearning.ambiguous;
-                  setState(
-                    () {
-                      answered = true;
+            OptionSizedBox(
+                child: ElevatedButton(
+                    onPressed: () {
+                      _input = NewWordLearning.ambiguous;
+                      setState(
+                        () {
+                          answered = true;
+                        },
+                      );
                     },
-                  );
-                },
-                child: const Text('模糊'))),
-            OptionSizedBox(child:ElevatedButton(
-                onPressed: () {
-                  _input = NewWordLearning.notRecognized;
-                  setState(() {
-                    answered = true;
-                  });
-                },
-                child: const Text('不认识'))),
+                    child: const Text('模糊'))),
+            OptionSizedBox(
+                child: ElevatedButton(
+                    onPressed: () {
+                      _input = NewWordLearning.notRecognized;
+                      setState(() {
+                        answered = true;
+                      });
+                    },
+                    child: const Text('不认识'))),
           ],
         ),
       );
@@ -215,7 +218,8 @@ class NewWordLearningPageComponentState
           },
         ),
         Center(
-          child: OptionSizedBox(child:ElevatedButton(
+          child: OptionSizedBox(
+              child: ElevatedButton(
             onPressed: () {
               answered = false;
               widget.newWordLearning.checkInput(_input!);
@@ -257,32 +261,35 @@ class WordRecognitionCheckPageComponentState
           children: [
             Text(widget.wordRecognitionCheck.word,
                 style: const TextStyle(fontSize: 30)),
-            OptionSizedBox(child:ElevatedButton(
-                onPressed: () {
-                  _input = WordRecognitionCheck.recognized;
-                  widget.wordRecognitionCheck.checkInput(_input!);
-                  WordMemorizingSystem().memorizeNextWord();
-                  HomePageChangeNotifier().notify();
-                },
-                child: const Text('认识'))),
-            OptionSizedBox(child:ElevatedButton(
-                onPressed: () {
-                  _input = WordRecognitionCheck.ambiguous;
-                  setState(
-                    () {
-                      answered = true;
+            OptionSizedBox(
+                child: ElevatedButton(
+                    onPressed: () {
+                      _input = WordRecognitionCheck.recognized;
+                      widget.wordRecognitionCheck.checkInput(_input!);
+                      WordMemorizingSystem().memorizeNextWord();
+                      HomePageChangeNotifier().notify();
                     },
-                  );
-                },
-                child: const Text('模糊'))),
-            OptionSizedBox(child:ElevatedButton(
-                onPressed: () {
-                  _input = WordRecognitionCheck.notRecognized;
-                  setState(() {
-                    answered = true;
-                  });
-                },
-                child: const Text('不认识'))),
+                    child: const Text('认识'))),
+            OptionSizedBox(
+                child: ElevatedButton(
+                    onPressed: () {
+                      _input = WordRecognitionCheck.ambiguous;
+                      setState(
+                        () {
+                          answered = true;
+                        },
+                      );
+                    },
+                    child: const Text('模糊'))),
+            OptionSizedBox(
+                child: ElevatedButton(
+                    onPressed: () {
+                      _input = WordRecognitionCheck.notRecognized;
+                      setState(() {
+                        answered = true;
+                      });
+                    },
+                    child: const Text('不认识'))),
           ],
         ),
       );
@@ -307,14 +314,15 @@ class WordRecognitionCheckPageComponentState
           },
         ),
         Center(
-          child: OptionSizedBox(child:ElevatedButton(
-            onPressed: () {
-              answered = false;
-              widget.wordRecognitionCheck.checkInput(_input!);
-              WordMemorizingSystem().memorizeNextWord();
-              HomePageChangeNotifier().notify();
-            },
-            child: const Text('继续学习')),
+          child: OptionSizedBox(
+            child: ElevatedButton(
+                onPressed: () {
+                  answered = false;
+                  widget.wordRecognitionCheck.checkInput(_input!);
+                  WordMemorizingSystem().memorizeNextWord();
+                  HomePageChangeNotifier().notify();
+                },
+                child: const Text('继续学习')),
           ),
         )
       ],
@@ -340,6 +348,7 @@ class ChineseToEnglishSpellingPageComponentState
   String? _input;
   bool answered = false;
   String judgeResult = 'synonyms';
+  final TextEditingController _controller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -365,13 +374,17 @@ class ChineseToEnglishSpellingPageComponentState
               padding: const EdgeInsets.all(16.0),
               child: TextField(
                   textAlign: TextAlign.center,
+                  controller: _controller,
                   decoration: const InputDecoration(
                     hintText: '请输入对应的英文单词',
                   ),
                   onSubmitted: (value) {
-                    _input = value;
-                    answered = true;
-                    if (judgeResult == 'synonyms') setState(() {});
+                    if (judgeResult == 'synonyms') {
+                      _controller.clear();
+                      _input = value;
+                      answered = true;
+                      setState(() {});
+                    }
                   })),
           Builder(
             builder: (BuildContext context) {
@@ -392,14 +405,16 @@ class ChineseToEnglishSpellingPageComponentState
                                 ? const Text('恭喜你，回答正确！')
                                 : Text(
                                     '回答错误，正确答案是 ${widget.chineseToEnglishSpelling.word}'),
-                            OptionSizedBox(child:ElevatedButton(
-                                onPressed: () {
-                                  answered = false;
-                                  judgeResult = 'synonyms';
-                                  WordMemorizingSystem().memorizeNextWord();
-                                  HomePageChangeNotifier().notify();
-                                },
-                                child: const Text('继续学习')))
+                            OptionSizedBox(
+                                child: ElevatedButton(
+                                    onPressed: () {
+                                      answered = false;
+                                      judgeResult = 'synonyms';
+                                      _controller.clear();
+                                      WordMemorizingSystem().memorizeNextWord();
+                                      HomePageChangeNotifier().notify();
+                                    },
+                                    child: const Text('继续学习')))
                           ],
                         );
                       } else if (snapshot.hasError) {
@@ -479,30 +494,34 @@ class ChineseToEnglishSelectionPageComponentState
                       return Column(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          OptionSizedBox(child:ElevatedButton(
-                              onPressed: () {
-                                _input = options![0];
-                                optionOnPressed();
-                              },
-                              child: Text(options![0]))),
-                          OptionSizedBox(child:ElevatedButton(
-                              onPressed: () {
-                                _input = options![1];
-                                optionOnPressed();
-                              },
-                              child: Text(options![1]))),
-                          OptionSizedBox(child:ElevatedButton(
-                              onPressed: () {
-                                _input = options![2];
-                                optionOnPressed();
-                              },
-                              child: Text(options![2]))),
-                          OptionSizedBox(child:ElevatedButton(
-                              onPressed: () {
-                                _input = options![3];
-                                optionOnPressed();
-                              },
-                              child: Text(options![3]))),
+                          OptionSizedBox(
+                              child: ElevatedButton(
+                                  onPressed: () {
+                                    _input = options![0];
+                                    optionOnPressed();
+                                  },
+                                  child: Text(options![0]))),
+                          OptionSizedBox(
+                              child: ElevatedButton(
+                                  onPressed: () {
+                                    _input = options![1];
+                                    optionOnPressed();
+                                  },
+                                  child: Text(options![1]))),
+                          OptionSizedBox(
+                              child: ElevatedButton(
+                                  onPressed: () {
+                                    _input = options![2];
+                                    optionOnPressed();
+                                  },
+                                  child: Text(options![2]))),
+                          OptionSizedBox(
+                              child: ElevatedButton(
+                                  onPressed: () {
+                                    _input = options![3];
+                                    optionOnPressed();
+                                  },
+                                  child: Text(options![3]))),
                         ],
                       );
                     } else {
@@ -511,13 +530,14 @@ class ChineseToEnglishSelectionPageComponentState
                           children: [
                             Text(
                                 '回答错误，正确答案是 ${widget.chineseToEnglishSelection.word}'),
-                            OptionSizedBox(child:ElevatedButton(
-                                onPressed: () {
-                                  answered = false;
-                                  WordMemorizingSystem().memorizeNextWord();
-                                  HomePageChangeNotifier().notify();
-                                },
-                                child: const Text('继续学习'))),
+                            OptionSizedBox(
+                                child: ElevatedButton(
+                                    onPressed: () {
+                                      answered = false;
+                                      WordMemorizingSystem().memorizeNextWord();
+                                      HomePageChangeNotifier().notify();
+                                    },
+                                    child: const Text('继续学习'))),
                           ]);
                     }
                   }))
@@ -586,34 +606,38 @@ class EnglishToChineseSelectionPageComponentState
                             return Column(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                OptionSizedBox(child:ElevatedButton(
-                                    onPressed: () {
-                                      _input = options![0];
-                                      optionOnPressed();
-                                    },
-                                    child: Text(
-                                        snapshot.data!.query(options![0])))),
-                                OptionSizedBox(child:ElevatedButton(
-                                    onPressed: () {
-                                      _input = options![1];
-                                      optionOnPressed();
-                                    },
-                                    child: Text(
-                                        snapshot.data!.query(options![1])))),
-                                OptionSizedBox(child:ElevatedButton(
-                                    onPressed: () {
-                                      _input = options![2];
-                                      optionOnPressed();
-                                    },
-                                    child: Text(
-                                        snapshot.data!.query(options![2])))),
-                                OptionSizedBox(child:ElevatedButton(
-                                    onPressed: () {
-                                      _input = options![3];
-                                      optionOnPressed();
-                                    },
-                                    child: Text(
-                                        snapshot.data!.query(options![3])))),
+                                OptionSizedBox(
+                                    child: ElevatedButton(
+                                        onPressed: () {
+                                          _input = options![0];
+                                          optionOnPressed();
+                                        },
+                                        child: Text(snapshot.data!
+                                            .query(options![0])))),
+                                OptionSizedBox(
+                                    child: ElevatedButton(
+                                        onPressed: () {
+                                          _input = options![1];
+                                          optionOnPressed();
+                                        },
+                                        child: Text(snapshot.data!
+                                            .query(options![1])))),
+                                OptionSizedBox(
+                                    child: ElevatedButton(
+                                        onPressed: () {
+                                          _input = options![2];
+                                          optionOnPressed();
+                                        },
+                                        child: Text(snapshot.data!
+                                            .query(options![2])))),
+                                OptionSizedBox(
+                                    child: ElevatedButton(
+                                        onPressed: () {
+                                          _input = options![3];
+                                          optionOnPressed();
+                                        },
+                                        child: Text(snapshot.data!
+                                            .query(options![3])))),
                               ],
                             );
                           } else {
@@ -623,14 +647,15 @@ class EnglishToChineseSelectionPageComponentState
                                 children: [
                                   Text(
                                       '回答错误，正确答案是 ${snapshot.data!.query(widget.englishToChineseSelection.word)}'),
-                                  OptionSizedBox(child:ElevatedButton(
-                                      onPressed: () {
-                                        answered = false;
-                                        WordMemorizingSystem()
-                                            .memorizeNextWord();
-                                        HomePageChangeNotifier().notify();
-                                      },
-                                      child: const Text('继续学习'))),
+                                  OptionSizedBox(
+                                      child: ElevatedButton(
+                                          onPressed: () {
+                                            answered = false;
+                                            WordMemorizingSystem()
+                                                .memorizeNextWord();
+                                            HomePageChangeNotifier().notify();
+                                          },
+                                          child: const Text('继续学习'))),
                                 ]);
                           }
                         }));
@@ -679,7 +704,7 @@ class SentenceGapFillingPageComponentState
   String? _input;
   bool answered = false;
   String judgeResult = 'synonyms';
-
+  final TextEditingController _controller = TextEditingController();
   ChangeNotifier notifier = ChangeNotifier();
 
   @override
@@ -704,10 +729,12 @@ class SentenceGapFillingPageComponentState
                         decoration: const InputDecoration(
                           hintText: '请输入句子空缺部分的单词',
                         ),
+                        controller: _controller,
                         onSubmitted: (value) {
-                          answered = true;
-                          _input = value;
                           if (judgeResult == 'synonyms') {
+                            _controller.clear();
+                            answered = true;
+                            _input = value;
                             SentenceGapFillingPageComponentNotifier().notify();
                           }
                         },
@@ -731,15 +758,18 @@ class SentenceGapFillingPageComponentState
                                       ? const Text('恭喜你，回答正确！')
                                       : Text(
                                           '回答错误，正确答案是 ${widget.sentenceGapFilling.word}'),
-                                  OptionSizedBox(child:ElevatedButton(
-                                    onPressed: () {
-                                      answered = false;
-                                      judgeResult = 'synonyms';
-                                      WordMemorizingSystem().memorizeNextWord();
-                                      HomePageChangeNotifier().notify();
-                                      setState(() {});
-                                    },
-                                    child: const Text('继续学习')),
+                                  OptionSizedBox(
+                                    child: ElevatedButton(
+                                        onPressed: () {
+                                          answered = false;
+                                          judgeResult = 'synonyms';
+                                          WordMemorizingSystem()
+                                              .memorizeNextWord();
+                                          HomePageChangeNotifier().notify();
+                                          _controller.clear();
+                                          setState(() {});
+                                        },
+                                        child: const Text('继续学习')),
                                   )
                                 ],
                               );
@@ -762,11 +792,12 @@ class SentenceGapFillingPageComponentState
             WordMemorizingSystem()
                 .changeMethod(MemorizingMethodName.wordRecognitionCheck);
             return Center(
-                child: OptionSizedBox(child:ElevatedButton(
-                    onPressed: () {
-                      HomePageChangeNotifier().notify();
-                    },
-                    child: const Text('AI造句填词暂无法使用，点此继续'))));
+                child: OptionSizedBox(
+                    child: ElevatedButton(
+                        onPressed: () {
+                          HomePageChangeNotifier().notify();
+                        },
+                        child: const Text('AI造句填词暂无法使用，点此继续'))));
           }
           return const Center(
             child: Text('加载中...'),

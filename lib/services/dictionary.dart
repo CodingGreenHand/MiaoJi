@@ -22,9 +22,7 @@ class LocalDictionary implements Dictionary {
   Future<void> _init() async {  
     try {  
       String textFileString = await _load(); 
-      //logger.d('Dictionary file loaded');  
-      var temporaryWordList = textFileString.split(RegExp(r'\s+')); // 使用 RegExp 确保正确分割  
-      //logger.d('Dictionary file parsed');
+      var temporaryWordList = textFileString.split(RegExp(r'\s+')); 
       String lastWord = "";
       for (int i = 0; i < temporaryWordList.length; i ++) {
         if(RegExp(r'^[A-Za-z-]+$').hasMatch(temporaryWordList[i])){
@@ -40,9 +38,7 @@ class LocalDictionary implements Dictionary {
         }  
       } 
       words = _data.keys.toList();
-      //logger.d('Dictionary initialized');  
     } catch (e) {  
-      // 处理异常，例如打印错误或重新抛出异常  
       logger.e('Failed to initialize dictionary: $e');  
       rethrow;  
     }  
@@ -57,10 +53,8 @@ class LocalDictionary implements Dictionary {
   
   Future<String> _load() async {  
     try {  
-      //logger.d('Loading dictionary file...');  
       return await rootBundle.loadString('assets/basic_word_dictionary.txt');  
     } catch (e) {  
-      // 处理加载文件时的异常  
       logger.e('Failed to load dictionary file: $e');  
       rethrow;  
     }  

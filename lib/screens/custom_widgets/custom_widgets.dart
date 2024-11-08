@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// unused widget
 class StyleChangeableButton extends StatefulWidget {
   final ButtonStyle finalButtonStyle;
   final ButtonStyle? initialButtonStyle;

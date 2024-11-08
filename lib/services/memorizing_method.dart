@@ -5,39 +5,10 @@ import 'package:miao_ji/utils/list_utils.dart';
 import 'package:miao_ji/utils/string_utils.dart';
 import 'dart:math';
 
-const int increment = 20;
-const int penalty = -5;
-
-class NewWordLearning {
-  static const String recognized = 'recognized';
-  static const String notRecognized = 'notRecognized';
-  static const String ambiguous = 'ambiguous';
-
-  String word;
-  NewWordLearning(this.word);
-
-  checkInput(String input) {
-    if (input.toLowerCase() == recognized.toLowerCase()) {
-      WordMemorizingSystem().memorizingData.updateBy(word, increment);
-      WordMemorizingSystem()
-          .currentWordBook!
-          .userProcess!
-          .updateLearningProgress(true);
-    } else {
-      WordMemorizingSystem()
-          .currentWordBook!
-          .userProcess!
-          .appendWordToLearn(word);
-      WordMemorizingSystem()
-          .currentWordBook!
-          .userProcess!
-          .updateLearningProgress(false);
-    }
-  }
-}
-
 class MemorizingMethod {
   String word;
+  int increment = WordMemorizingSystem().userPlan!.scoreAward;
+  int penalty = -WordMemorizingSystem().userPlan!.scorePenalty;
   MemorizingMethod(this.word);
 
   checkInput(String input) {
@@ -58,6 +29,38 @@ class MemorizingMethod {
           .currentWordBook!
           .userProcess!
           .updateReviewingProgress(false);
+    }
+  }
+}
+
+class NewWordLearning extends MemorizingMethod {
+  static const String recognized = 'recognized';
+  static const String notRecognized = 'notRecognized';
+  static const String ambiguous = 'ambiguous';
+
+  NewWordLearning(super.word);
+
+  @override
+  checkInput(String input) {
+    if (input.toLowerCase() == recognized.toLowerCase()) {
+      WordMemorizingSystem().memorizingData.updateBy(word, increment);
+      WordMemorizingSystem()
+          .currentWordBook!
+          .userProcess!
+          .appendWordToReview(word);
+      WordMemorizingSystem()
+          .currentWordBook!
+          .userProcess!
+          .updateLearningProgress(true);
+    } else {
+      WordMemorizingSystem()
+          .currentWordBook!
+          .userProcess!
+          .appendWordToLearn(word);
+      WordMemorizingSystem()
+          .currentWordBook!
+          .userProcess!
+          .updateLearningProgress(false);
     }
   }
 }

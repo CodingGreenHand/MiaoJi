@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miao_ji/models/memorizing_data.dart';
+import 'package:miao_ji/services/word_memorizing_system.dart';
 
 class MemorizingDataPage extends StatefulWidget {
   const MemorizingDataPage({super.key});
@@ -13,8 +14,41 @@ class MemorizingDataPageState extends State<MemorizingDataPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            title: const Text('单词记忆数据'),
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary),
+          title: const Text('单词记忆数据'),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.help),
+              onPressed: () async {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return const SimpleDialog(
+                          title: Text('单词记忆数据说明'),
+                          children: [
+                            Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Center(
+                                    child: SingleChildScrollView(child: Text('''
+这里的记忆分数衡量你对单词的熟练程度，分数越高，代表你越熟练。
+每回答正确一次，记忆分数会增加；如果答错，或在回答其它单词问题的时候误回答了此单词，记忆分数减少。
+默认情况下，记忆分数每次增加20，每次减少5。你也可以根据自己的情况设置不同的记忆分数增减值。
+每日学习计划会根据记忆分数调整单词的出现频率。
+具体而言：
+0-20：1天内出现
+21-40：1天后出现
+41-60：2天后出现
+61-80：4天后出现
+81-100：7天后出现
+101-120：15天后出现
+120+：视为已掌握该单词
+'''))))
+                          ]);
+                    });
+              },
+            )
+          ],
+        ),
         body: FutureBuilder(
           future: MemorizingData.getInstance(),
           builder: (context, snapshot) {
@@ -75,6 +109,50 @@ class MemorizingDataPageComponentState
     return Center(
         child: Column(
       children: [
+        Padding(padding: const EdgeInsets.only(left:16.0,right:16.0,top: 16.0),
+          child:Row(children: [
+            TextField(
+              decoration: InputDecoration(
+                labelText: '加分：${WordMemorizingSystem().userPlan!.scoreAward}',
+                constraints: const BoxConstraints(minWidth: 50, maxWidth: 100)
+              ),
+              keyboardType: TextInputType.number,
+              onSubmitted: (String value) async {
+                int? num;
+                try {
+                  num = int.parse(value);
+                  if(num < 0) throw Exception('增加分数不能为负数');
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+                }
+                if (num != null) {
+                  WordMemorizingSystem().userPlan!.setScoreAward(num);
+                }
+                setState(() {});
+              },
+            ),
+            const SizedBox(width: 16),
+            TextField(
+              decoration: InputDecoration(
+                labelText: '减分：${WordMemorizingSystem().userPlan!.scorePenalty}',
+                constraints: const BoxConstraints(minWidth: 50, maxWidth: 100),
+              ),
+              keyboardType: TextInputType.number,
+              onSubmitted: (String value) async {
+                int? num;
+                try {
+                  num = int.parse(value);
+                  if(num < 0) throw Exception('减少分数不能为负数');
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+                }
+                if (num != null) {
+                  WordMemorizingSystem().userPlan!.setScorePenalty(num);
+                }
+                setState(() {});
+              },
+            ),
+            Expanded(child: 
         ElevatedButton(
             onPressed: () async {
               showDialog(
@@ -96,12 +174,16 @@ class MemorizingDataPageComponentState
                         ]);
                   });
             },
-            child: const Text('清空记忆数据')),
+            child: const Text('清空数据')),
+
+            )
+          ],)
+        ),
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.only(left:16.0,right:16.0),
           child: TextField(
             decoration: const InputDecoration(
-              hintText: '添加/搜索单词', 
+              hintText: '添加/搜索单词',
               constraints: BoxConstraints(minWidth: 100, maxWidth: 1000),
             ),
             controller: _searchController,

@@ -59,7 +59,7 @@ class UserProcess {
     }
     UserPlan userPlan = await UserPlan.getInstance();
     int neededNewWordCount = (userPlan.dailyLearnNum - todayLearnCount)>0? (userPlan.dailyLearnNum - todayLearnCount) : 0;
-    int neededReviewCount = (userPlan.dailyReviewNum - todayReviewCount)>0? (userPlan.dailyReviewNum - todayReviewCount) : 0;
+    int neededReviewCount = (userPlan.dailyReviewNum +  todayLearnCount - todayReviewCount)>0? (userPlan.dailyReviewNum +  todayLearnCount - todayReviewCount) : 0;
     String orderSql = userPlan.memorizingOrder == MemorizingOrder.sequential? 'ASC' : 'DESC';
     List<Map<String, dynamic>> newWordQueryResult = await database!.rawQuery('''SELECT wb.word FROM ${TableNames.wordBookPrefix + wordBookName} AS wb
     WHERE NOT EXISTS(
@@ -84,14 +84,17 @@ class UserProcess {
       WHERE md.word = wb.word AND md.score <= 120
     )
     ORDER BY md.score $orderSql
-    LIMIT $neededReviewCount
     ''');
-    mutableList = [...learnedWordQueryResult] + mutableList;
-    if (userPlan.memorizingOrder == MemorizingOrder.random){
-      mutableList.shuffle(Random(DateTime.now().millisecondsSinceEpoch));
+    mutableList = [...learnedWordQueryResult];
+    for(Map<String, dynamic> row in mutableList){
+      if(row['score'] <= 20) wordsToReview.add(row['word']);
     }
     for(Map<String, dynamic> row in mutableList){
-      if(_needsToReview(row)) wordsToReview.add(row['word']);
+      if(wordsToReview.length >= neededReviewCount) break;
+      if(row['score'] > 20 &&_needsToReview(row)) wordsToReview.add(row['word']);
+    }
+    if (userPlan.memorizingOrder == MemorizingOrder.random){
+      mutableList.shuffle(Random(DateTime.now().millisecondsSinceEpoch));
     }
   }
 

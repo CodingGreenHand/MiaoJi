@@ -32,10 +32,14 @@ class UserPlan {
   static List<String> _usingMethods = [MemorizingMethodName.wordRecognitionCheck];
   static final UserPlan _singleton = UserPlan._();
   static  LocalDictionary? _localDictionary;
+  static int _scoreAward = 20;
+  static int _scorePenalty = 5;
 
   static Future<UserPlan> getInstance() async{
     _dailyLearnNum = await _prefs.getInt('dailyLearnNum')?? 10;
     _dailyReviewNum = await _prefs.getInt('dailyReviewNum')?? 10;
+    _scoreAward = await _prefs.getInt('scoreAward')?? 20;
+    _scorePenalty = await _prefs.getInt('scorePenalty')?? 5;
     _memorizingOrder = await _prefs.getString('memorizingOrder')?? MemorizingOrder.random;
     _usingMethods = await _prefs.getStringList('usingMethods')?? [MemorizingMethodName.wordRecognitionCheck];
     _localDictionary ??= await LocalDictionary.getInstance();
@@ -114,4 +118,18 @@ class UserPlan {
   bool isMethodAvailable(String value) => _usingMethods.contains(value);
   
   int methodNum() => _usingMethods.length;
+
+  Future<void> setScoreAward(int value) async{
+    _scoreAward = value;
+    await _prefs.setInt('scoreAward', value);
+  }
+
+  int get scoreAward => _scoreAward;
+
+  Future<void> setScorePenalty(int value) async{
+    _scorePenalty = value;
+    await _prefs.setInt('scorePenalty', value);
+  }
+
+  int get scorePenalty => _scorePenalty;
 }
