@@ -83,7 +83,7 @@ class AIEnglishClient {
     String requirement = 'Are $word1 and $word2 synonyms? If yes, output "yes"; else output "no". The words may have multiple meanings, and if one of the meanings of the word is synonymous with the other, also output "yes". If any incorrect spelling occurs, also output "no". Don\'t output anything else.';
     String result = await generate(requirement);
     if(result == errorMessage) throw Exception('Failed to judge synonyms');
-    return result.toLowerCase() == 'yes';
+    return result.toLowerCase().isNotEmpty && result[0] == 'y';
   }
 
   static void addWord(String word) {
