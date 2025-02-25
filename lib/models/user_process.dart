@@ -83,7 +83,7 @@ class UserProcess {
       FROM ${TableNames.wordBookPrefix + wordBookName} AS wb
       WHERE md.word = wb.word AND md.score <= 120
     )
-    ORDER BY md.score $orderSql
+    ORDER BY md.word $orderSql
     ''');
     mutableList = [...learnedWordQueryResult];
     for(Map<String, dynamic> row in mutableList){

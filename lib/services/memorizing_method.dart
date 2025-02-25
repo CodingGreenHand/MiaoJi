@@ -111,7 +111,7 @@ class ChineseToEnglishSpelling extends MemorizingMethod {
       return 'correct';
     }
     try{
-      bool areSynonyms = await AIEnglishClient.areSynonyms(word, input);
+      bool areSynonyms = await AiEnglishClient.areSynonyms(word, input);
       if (areSynonyms) return 'synonyms';
       WordMemorizingSystem().memorizingData.updateBy(word, penalty);
       WordMemorizingSystem().memorizingData.updateBy(input, penalty);
@@ -183,7 +183,7 @@ class SentenceGapFilling extends MemorizingMethod {
 
   String get translation => _translation;
 
-  Future<String> requestAI() async {
+  Future<String> requestAi() async {
     String requirement ='''
       Please generate a sentence with the word "$word" in it. Don't change the form of the word (Uppercase is acceptable).
       Don't output anything else.
@@ -207,11 +207,11 @@ class SentenceGapFilling extends MemorizingMethod {
       Explanation:
       In this sentence, the word "apples" occurs in the plural form. Please use the original form to generate the sentence.
     ''';
-    return await AIEnglishClient.generate(requirement);
+    return await AiEnglishClient.generate(requirement);
   }
 
   Future<void> initialize() async {
-    _sentence = await requestAI();
+    _sentence = await requestAi();
     _sentenceElements = StringUtils.parseEnglishSentence(_sentence);
     gapIndex = -1;
     for (int i = 0; i < _sentenceElements.length; i++) {
@@ -237,7 +237,7 @@ class SentenceGapFilling extends MemorizingMethod {
     将下面的英语句子翻译成中文。只输出翻译，不要输出任何其他内容。
     $_sentence
     ''';
-    return await AIEnglishClient.generate(requirement);
+    return await AiEnglishClient.generate(requirement);
   }
 
   @override
@@ -251,7 +251,7 @@ class SentenceGapFilling extends MemorizingMethod {
       return 'correct';
     }
     try{
-      bool areSynonyms = await AIEnglishClient.areSynonyms(word, input);
+      bool areSynonyms = await AiEnglishClient.areSynonyms(word, input);
       if (areSynonyms) return 'synonyms';
       WordMemorizingSystem().memorizingData.updateBy(word, penalty);
       WordMemorizingSystem().memorizingData.updateBy(input, penalty);

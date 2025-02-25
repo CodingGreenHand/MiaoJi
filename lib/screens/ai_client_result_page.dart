@@ -17,7 +17,7 @@ class AiClientResultPage extends StatelessWidget{
       body:Padding(
         padding: const EdgeInsets.all(16.0),
         child:FutureBuilder(
-          future: AIEnglishClient.generatePassageByWords(AIEnglishClient.words,wordNum), 
+          future: AiEnglishClient.generatePassageByWords(AiEnglishClient.words,wordNum), 
           builder: (context,snapshot){
             if(snapshot.hasData && snapshot.connectionState == ConnectionState.done){
               return Center(

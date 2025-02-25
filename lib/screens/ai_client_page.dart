@@ -25,7 +25,7 @@ class AiClientPageState extends State<AiClientPage> {
             children: [
               ElevatedButton(
                 onPressed: (){
-                  if(AIEnglishClient.words.isEmpty){
+                  if(AiEnglishClient.words.isEmpty){
                     ScaffoldMessenger.of(context)
                      ..removeCurrentSnackBar()
                      ..showSnackBar(const SnackBar(content: Text('请添加单词')));
@@ -65,19 +65,19 @@ class AiClientPageState extends State<AiClientPage> {
               labelText: '添加用于生成文章的单词',
             ),
             onSubmitted: (String value){
-              AIEnglishClient.addWord(value);
+              AiEnglishClient.addWord(value);
               setState(() {});
             },
           ),
           Expanded(child:ListView.builder(
-            itemCount: AIEnglishClient.words.length,
+            itemCount: AiEnglishClient.words.length,
             itemBuilder: (context, index){
               return ListTile(
-                title: Text(AIEnglishClient.words[index]),
+                title: Text(AiEnglishClient.words[index]),
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () {
-                    AIEnglishClient.deleteWord(AIEnglishClient.words[index]);
+                    AiEnglishClient.deleteWord(AiEnglishClient.words[index]);
                     setState(() {});
                   },
                 ),

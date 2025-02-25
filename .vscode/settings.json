@@ -4,5 +4,6 @@
         "miao",
         "prefs"
     ],
-    "cmake.ignoreCMakeListsMissing": true
+    "cmake.ignoreCMakeListsMissing": true,
+    "Codegeex.RepoIndex": true
 }

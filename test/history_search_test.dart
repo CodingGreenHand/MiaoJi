@@ -20,7 +20,7 @@ void main() {
     });  
   
     tearDownAll(() async {  
-      DBProvider.closeDataBase();
+      DBProvider.closeDatabase();
     });  
   
     test('insert and get history search', () async {  

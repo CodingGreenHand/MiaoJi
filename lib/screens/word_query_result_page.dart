@@ -32,7 +32,7 @@ class WordQueryResultPage extends StatelessWidget {
 class WordQueryResultPageBody extends StatefulWidget {
   final String word;
   final Dictionary dictionary;
-  final AIEnglishClient aiEnglishClient = AIEnglishClient.getInstance();
+  final AiEnglishClient aiEnglishClient = AiEnglishClient.getInstance();
   WordQueryResultPageBody(
       {super.key, required this.word, required this.dictionary});
 
@@ -63,7 +63,7 @@ class WordQueryResultPageBodyState extends State<WordQueryResultPageBody> {
             textScaler: TextScaler.linear(1.5),
           ),
           FutureBuilder(
-              future: AIEnglishClient.explainWord(widget.word),
+              future: AiEnglishClient.explainWord(widget.word),
               builder: (context, snapshot) {
                 if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
                   return Text(snapshot.data!);
@@ -79,7 +79,7 @@ class WordQueryResultPageBodyState extends State<WordQueryResultPageBody> {
             textScaler: TextScaler.linear(1.5),
           ),
           FutureBuilder(
-              future: AIEnglishClient.generateSentence(widget.word),
+              future: AiEnglishClient.generateSentence(widget.word),
               builder: (context, snapshot) {
                 if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
                   return Text(snapshot.data!);

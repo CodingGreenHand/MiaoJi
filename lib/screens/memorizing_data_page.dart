@@ -188,7 +188,7 @@ class MemorizingDataPageComponentState
             ),
             controller: _searchController,
             onSubmitted: (String value) async {
-              await widget.memorizingData.update(value, 0);
+              await widget.memorizingData.update(value, 1);
               setState(() {});
             },
           ),

@@ -1,12 +1,12 @@
 import 'package:openai_dart/openai_dart.dart';
 
 
-class AIEnglishClient {
+class AiEnglishClient {
   static const String errorMessage = 'Failed to generate';
   static List<String> words = [];
-  static final AIEnglishClient _instance = AIEnglishClient._();
-  AIEnglishClient._();
-  static AIEnglishClient getInstance() => _instance;
+  static final AiEnglishClient _instance = AiEnglishClient._();
+  AiEnglishClient._();
+  static AiEnglishClient getInstance() => _instance;
   static final client = OpenAIClient(
     baseUrl: 'https://ark.cn-beijing.volces.com/api/v3',
     apiKey: '220fe9c3-1aa6-4a19-ab30-6b31c149b666'
@@ -83,7 +83,7 @@ class AIEnglishClient {
     String requirement = 'Are $word1 and $word2 synonyms? If yes, output "yes"; else output "no". The words may have multiple meanings, and if one of the meanings of the word is synonymous with the other, also output "yes". If any incorrect spelling occurs, also output "no". Don\'t output anything else.';
     String result = await generate(requirement);
     if(result == errorMessage) throw Exception('Failed to judge synonyms');
-    return result.toLowerCase().isNotEmpty && result[0] == 'y';
+    return result.toLowerCase().isNotEmpty && result.toLowerCase()[0] == 'y';
   }
 
   static void addWord(String word) {

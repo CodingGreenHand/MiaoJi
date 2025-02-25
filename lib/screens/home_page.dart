@@ -141,7 +141,7 @@ class HomePageState extends State<HomePage> {
                   ),
                   IconButton(
                     onPressed: () {
-                      AIEnglishClient.addWord(
+                      AiEnglishClient.addWord(
                           WordMemorizingSystem().currentWord);
                       ScaffoldMessenger.of(context)
                         ..removeCurrentSnackBar()

@@ -13,7 +13,7 @@ void main() {
   });  
   
   tearDownAll(() async {  
-    await DBProvider.closeDataBase();  
+    await DBProvider.closeDatabase();  
   });  
   
   group('MemorizingData tests', () {  

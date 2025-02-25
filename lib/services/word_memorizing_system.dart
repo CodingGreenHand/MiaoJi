@@ -7,7 +7,6 @@ class WordMemorizingSystem {
   WordMemorizingSystem._();
   static final WordMemorizingSystem _singleton = WordMemorizingSystem._();
   factory WordMemorizingSystem() => _singleton;
-
   late MemorizingData memorizingData;
   final SharedPreferencesAsync _prefs = SharedPreferencesAsync();
   WordBook? currentWordBook;

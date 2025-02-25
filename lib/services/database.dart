@@ -32,9 +32,8 @@ class DBProvider{
     return await openDatabase(path, version: 1, onOpen: (db){});
   }
 
-  static closeDataBase(){
+  static closeDatabase(){
     _database?.close();
     _database = null;
   }
-
 }

@@ -79,11 +79,6 @@ class UserPlan {
 
   String get memorizingOrder => _memorizingOrder;
 
-  Future<void> setMemorizingMethods(List<String> value) async{
-    _usingMethods = value;
-    await _prefs.setStringList('usingMethods', value);
-  }
-
   List<String> get memorizingMethods => _usingMethods;
 
   Future<void> addMemorizingMethod(String value) async{
